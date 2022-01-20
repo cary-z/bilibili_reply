@@ -5,16 +5,21 @@
 </template>
 
 <script lang="ts" setup>
-import { defineProps, defineExpose } from "vue";
-import { IProps } from "./type";
-import { getAid, getReplyInfo } from "../api/reply";
+import { ref, defineProps, defineExpose } from "vue";
+interface IProps {
+  filter: {
+    bvid: string;
+    keyword: string;
+    uid: string;
+  };
+}
+import { getAid, getReplyInfo } from "../api/api_base";
 const props = defineProps<IProps>();
+const matchInfo = ref<any>("");
 const getReply = async () => {
-  // console.log(props.filter.keyword, props.filter.uid);
   const aid = await getAid(props.filter.bvid);
-  getReplyInfo({ oid: aid });
+  matchInfo.value = await getReplyInfo({ oid: aid });
 };
-const matchInfo = await getReply();
 defineExpose({ getReply });
 </script>
 <style scoped>

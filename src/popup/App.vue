@@ -11,7 +11,7 @@
 import { ref } from "vue";
 import ReplyForm from "./ReplyForm.vue";
 import ReplyContent from "./ReplyContent.vue";
-const replyContent: any = ref(null);
+const replyContent = ref<any>(null);
 const filter = ref({
   // 查询条件
   bvid: "", // BV号
@@ -19,8 +19,7 @@ const filter = ref({
   uid: "", // b站用户id
 });
 const onSearch = () => {
-  console.log(replyContent);
-  // 触发子组件表格搜索
+  // 触发子组件搜索
   replyContent.value.getReply();
 };
 </script>

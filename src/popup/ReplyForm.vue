@@ -21,7 +21,13 @@
 
 <script lang="ts" setup>
 import { defineProps, defineEmits } from "vue";
-import { IProps } from "./type";
+interface IProps {
+  filter: {
+    bvid: string;
+    keyword: string;
+    uid: string;
+  };
+}
 const props = defineProps<IProps>();
 const emit = defineEmits(["search"]);
 const onSearch = () => emit("search");
