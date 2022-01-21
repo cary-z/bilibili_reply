@@ -1,9 +1,9 @@
 <template>
-  <div class="main_app">
-    <reply-form v-model:filter="filter"
-                @search="onSearch"></reply-form>
-    <reply-content :filter="filter"
-                   ref="replyContent"></reply-content>
+  <div class="main_app p-1">
+    <ReplyForm v-model:filter="filter"
+               @search="onSearch" />
+    <ReplyContent :filter="filter"
+                  ref="replyContent" />
   </div>
 </template>
 
@@ -17,6 +17,8 @@ const filter = ref({
   bvid: "", // BV号
   keyword: "", // 关键词
   uid: "", // b站用户id
+  num: 1, // 限制数量
+  mode: false, // 模式（关键词或者正则）
 });
 const onSearch = () => {
   // 触发子组件搜索
@@ -26,11 +28,6 @@ const onSearch = () => {
 
 <style scoped>
 .main_app {
-  width: 500px;
-  /* font-family: "Avenir", Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale; */
-  /* text-align: center; */
-  /* color: #2c3e50; */
+  width: 600px;
 }
 </style>
