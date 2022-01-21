@@ -93,7 +93,30 @@ const getReply = async () => {
       return;
     }
   } else {
-    regexp = keyword ? eval(`/${keyword}/g`) : null;
+    const arr = [
+      "^",
+      "$",
+      ".",
+      "*",
+      "+",
+      "?",
+      "|",
+      "\\",
+      "/",
+      "(",
+      ")",
+      "[",
+      "]",
+      "{",
+      "}",
+      "-",
+      ",",
+    ];
+    const regexp_special = new RegExp(`(\\${arr.join("|\\")})`, "g");
+    const new_keyword = keyword.replace(regexp_special, "\\$1");
+    console.log(new_keyword);
+    regexp = keyword ? new RegExp(new_keyword, "g") : null;
+    console.log(regexp);
   }
   clear();
   await SleepMS(200);
