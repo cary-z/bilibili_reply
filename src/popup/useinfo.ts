@@ -26,12 +26,13 @@ export interface IView {
   reply_cur: number
 }
 
-export async function search({ bvid, uid, regexp, num }: IPara, view: IView) {
+export async function search({ bvid, uid, regexp, num }: IPara, view: IView, matchInfo: IMatchInfo[]) {
   let length = 0
   let next = 0
   const aid = await getAid(bvid)
-  let matchInfo: IMatchInfo[] = []
+  // let matchInfo: IMatchInfo[] = []
   for (let i = 0; ; i++) {
+    if (!view.flag) break
     console.time(`第${i + 1}个发包`)
     const result = await handleResult({
       next: next,
@@ -63,7 +64,7 @@ export async function search({ bvid, uid, regexp, num }: IPara, view: IView) {
     await SleepMS(500);
   }
   console.log('找过的评论个数为' + length)
-  return matchInfo
+  // return matchInfo
 }
 
 async function handleResult({ next, type, oid, mode, uid, regexp }) {
@@ -76,7 +77,8 @@ async function handleResult({ next, type, oid, mode, uid, regexp }) {
     return { flag: false }
   }
   let rp_num = 0
-  const replies = result.replies.map((item) => {
+  const all_replies = next ? result.replies : result.replies.concat(result.top_replies ?? [])
+  const replies = all_replies.map((item) => {
     const content: IMatchInfo = {
       uid: item.mid,
       uname: item.member.uname,
@@ -87,13 +89,16 @@ async function handleResult({ next, type, oid, mode, uid, regexp }) {
       time: item.ctime,
     }
     rp_num += Number(item.reply_control?.sub_reply_entry_text?.replace(/共(\d+)条回复/, '$1') || 0)
-    if (uid && uid === item.member.mid) info = content
-    if (regexp) {
-      if (regexp.test(content.message)) info = content
+    if (uid && uid === item.member.mid) {
+      if (regexp) regexp.test(content.message) && (info = content)
+      else info = content
+    }
+    if (!uid) {
+      if (regexp) regexp.test(content.message) && (info = content)
     }
     return content
   })
-  if (replies.length <= 0) {
+  if (result.cursor.is_end) {
     return { flag: false }
   }
   return { flag: true, length: replies.length, extraInfo: { next: result.cursor.next, rp_num, all_count: result.cursor.all_count }, info }

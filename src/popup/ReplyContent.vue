@@ -1,18 +1,21 @@
 <template>
   <div>
-    <div style="text-align: right;">{{view.reply_cur}}/{{view.reply_total}}</div>
+    <div style="text-align: right;">{{props.view.reply_cur}}/{{props.view.reply_total}}</div>
     <el-progress :text-inside="true"
                  :stroke-width="20"
-                 :percentage="Math.ceil(view.reply_cur/view.reply_total*100) || 0"
+                 :percentage="Math.ceil(props.view.reply_cur/props.view.reply_total*100) || 0"
                  status="success" />
-    <div v-loading="view.flag">
+    <div>
       <template v-if="matchInfo.length > 0">
         <div v-for="(item,index) in matchInfo"
              :key="'matchInfo_'+index"
              class="info p-1">
-          <img :src="item.avatar"
-               class="avatar"
-               :title="'uid:'+item.uid">
+          <el-tooltip effect="dark"
+                      :content="'uid:'+item.uid"
+                      placement="top-start">
+            <img :src="item.avatar"
+                 class="avatar">
+          </el-tooltip>
           <div class="ml-1">
             <a :href="'https://space.bilibili.com/'+item.uid"
                target="_blank"
@@ -32,9 +35,9 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, defineExpose } from "vue";
+import { ref } from "vue";
 import { ElMessage } from "element-plus";
-import { search, IView } from "./useinfo";
+import { search } from "./useinfo";
 import { IMatchInfo } from "./type";
 import { SleepMS } from "../libs/utils";
 interface IProps {
@@ -45,14 +48,19 @@ interface IProps {
     num: number;
     mode: boolean;
   };
+  view: {
+    flag: boolean;
+    reply_total: number;
+    reply_cur: number;
+  };
 }
 
 const props = defineProps<IProps>();
-const view = ref<IView>({
-  flag: false,
-  reply_total: 0,
-  reply_cur: 0,
-});
+// const view = ref<IView>({
+//   flag: false,
+//   reply_total: 0,
+//   reply_cur: 0,
+// });
 const formatTime = (time: number) => {
   const date = new Date(time * 1000);
   return `${date.getFullYear()}年${
@@ -61,9 +69,10 @@ const formatTime = (time: number) => {
 };
 const matchInfo = ref<IMatchInfo[]>([]);
 const clear = () => {
-  view.value.flag = true;
-  view.value.reply_cur = 0;
-  view.value.reply_total = 0;
+  matchInfo.value = [];
+  props.view.flag = true;
+  props.view.reply_cur = 0;
+  props.view.reply_total = 0;
 };
 const getReply = async () => {
   const { bvid, keyword, uid, num, mode } = props.filter;
@@ -88,17 +97,23 @@ const getReply = async () => {
   }
   clear();
   await SleepMS(200);
-  const result = await search({ bvid, uid, regexp, num }, view.value)
+  await search({ bvid, uid, regexp, num }, props.view, matchInfo.value)
+    .then(() => {
+      ElMessage.success("搜索完成");
+    })
     .catch((err) => {
       console.log(err);
       ElMessage.error(err.message);
     })
     .finally(() => {
-      view.value.flag = false;
+      props.view.flag = false;
     });
-  result && (matchInfo.value = result);
+  // result && (matchInfo.value = result);
 };
-defineExpose({ getReply });
+const stopGetReply = () => {
+  props.view.flag = false;
+};
+defineExpose({ getReply, stopGetReply });
 </script>
 <style lang="scss" scoped>
 .info {
