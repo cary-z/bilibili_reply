@@ -1,65 +1,99 @@
-import { ref } from "vue";
-import { ElMessage } from "element-plus";
-import { stringToRegexp } from "../libs/regexp";
-import { SleepMS } from "../libs/utils";
-import { search } from "./useinfo";
-import { IView, IMatchInfo } from './type'
+import { ref } from 'vue'
+import { ElMessage } from 'element-plus'
+import { getAid } from '../api/reply'
+import { stringToRegexp } from '../libs/regexp'
+import { SleepMS } from '../libs/utils'
+import { handleResult } from './useinfo'
+import { IView, IMatchInfo, IHandleResult } from './type'
 export const filter = ref({
   // 查询条件
-  bvid: "", // BV号
-  keyword: "", // 关键词
-  uid: "", // b站用户id
-  num: "1", // 限制数量
-  mode: false, // 模式（关键词或者正则）
-});
+  bvid: '', // BV号
+  keyword: '', // 关键词
+  uid: '', // b站用户id
+  num: '1', // 限制数量
+  mode: false // 模式（关键词或者正则）
+})
 export const view = ref<IView>({
   flag: false,
   reply_total: 0,
-  reply_cur: 0,
-});
-export const matchInfo = ref<IMatchInfo[]>([]);
+  reply_cur: 0
+})
+export const matchInfo = ref<IMatchInfo[]>([])
 
 export const clearInfo = () => {
-  matchInfo.value = [];
-  view.value.flag = true;
-  view.value.reply_cur = 0;
-  view.value.reply_total = 0;
-};
+  matchInfo.value = []
+  view.value.flag = true
+  view.value.reply_cur = 0
+  view.value.reply_total = 0
+}
 
-export const getReply = async () => {
-  const { bvid, keyword, uid, num, mode } = filter.value;
+const checkPara = () => {
+  const { keyword, uid } = filter.value
   if (!keyword && !uid) {
-    ElMessage.error("至少输入一条筛选条件");
-    return;
+    throw new Error('至少输入一条筛选条件')
   }
-  let regexp: RegExp | null;
+}
+
+const getRegexp = () => {
+  const { keyword, mode } = filter.value
+  let regexp: RegExp | null
   if (mode) {
     try {
-      regexp = eval(keyword);
+      regexp = eval(keyword)
     } catch (err) {
-      ElMessage.error("正则表达式有误");
-      return;
+      throw new Error('正则表达式有误')
     }
-    if (Object.prototype.toString.call(regexp) !== "[object RegExp]") {
-      ElMessage.error("输入非正则表达式");
-      return;
+    if (Object.prototype.toString.call(regexp) !== '[object RegExp]') {
+      throw new Error('输入非正则表达式')
     }
   } else {
-    regexp = keyword ? stringToRegexp(keyword) : null;
-    console.log(regexp);
+    regexp = keyword ? stringToRegexp(keyword) : null
+    console.log(regexp)
   }
-  clearInfo();
-  await SleepMS(200);
-  await search({ bvid, uid, regexp, num }, view.value, matchInfo.value)
-    .then(() => {
-      ElMessage.success("搜索完成");
-    })
-    .catch((err) => {
-      console.log(err);
-      ElMessage.error(err.message);
-    })
-    .finally(() => {
-      view.value.flag = false;
-    });
-};
+  return regexp
+}
 
+export const getReply = async () => {
+  let regexp: RegExp | null
+  try {
+    checkPara()
+    regexp = getRegexp()
+  } catch (err) {
+    ElMessage.error((err as Error).message)
+    return
+  }
+  clearInfo()
+  await SleepMS(200)
+  const { bvid, uid, num } = filter.value
+  let length = 0
+  let next = 0
+  const aid = await getAid(bvid)
+  for (let i = 0; ; i++) {
+    if (!view.value.flag) break
+    console.time(`第${i + 1}个发包`)
+    const result = await handleResult({ next, type: 1, oid: aid, mode: 3, uid, regexp })
+    console.timeEnd(`第${i + 1}个发包`)
+    if (result.flag) {
+      length += (result as IHandleResult).length + (result as IHandleResult).extraInfo.rp_num
+      view.value.reply_cur = length
+      view.value.reply_total = (result as IHandleResult).extraInfo.all_count
+      next = (result as IHandleResult).extraInfo.next
+      if (result.info && result.info.length > 0) {
+        console.log((result as IHandleResult).info)
+        matchInfo.value.push(...(result as IHandleResult).info)
+        console.log('搜索到了')
+        if (num !== '*' && matchInfo.value.length >= Number(num)) {
+          break
+        }
+      }
+    } else {
+      view.value.reply_cur = view.value.reply_total
+      console.log('未搜索到')
+      break
+    }
+    await SleepMS(500)
+  }
+  ElMessage.success('搜索完成')
+  view.value.flag = false
+  console.log('找过的评论个数为' + length)
+}

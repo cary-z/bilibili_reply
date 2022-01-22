@@ -45,8 +45,8 @@ import { formatTime } from "../libs/utils";
   min-height: 80px;
   font-size: 12px;
   .avatar {
-    width: 60px;
-    height: 60px;
+    width: 48px;
+    height: 48px;
     border-radius: 50%;
   }
   .uname {

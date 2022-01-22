@@ -1,4 +1,5 @@
 import axios from './api_base'
+import { IReplies } from '../popup/type'
 
 interface IGetReplyPara {
   next?: number // 下个索引
@@ -7,17 +8,20 @@ interface IGetReplyPara {
   mode?: number // 模式 2 按时间排序 3 按热度排序
 }
 export function getReplyInfo({ next = 0, type = 1, oid, mode = 3 }: IGetReplyPara) {
-  return axios.get('https://api.bilibili.com/x/v2/reply/main', {
-    params: {
-      next,
-      ps: 30,
-      type,
-      oid,
-      mode,
-      plat: 1,
-      _: Date.now(),
-    }
-  }).catch((err: any) => err)
+  return axios
+    .get('https://api.bilibili.com/x/v2/reply/main', {
+      params: {
+        next,
+        ps: 30,
+        type,
+        oid,
+        mode,
+        plat: 1,
+        _: Date.now()
+      }
+    })
+    .then((res) => res.data.data)
+    .catch((err: any) => err)
 }
 
 export async function getAid(bvid: string) {
