@@ -17,7 +17,7 @@ interface IPara {
   bvid: string
   uid: string
   regexp: RegExp | null
-  num: number
+  num: string
 }
 
 export interface IView {
@@ -52,7 +52,7 @@ export async function search({ bvid, uid, regexp, num }: IPara, view: IView, mat
         console.log((result as ISuccessResult).info)
         matchInfo.push((result as ISuccessResult).info as IMatchInfo)
         console.log('搜索到了')
-        if (matchInfo.length >= num) {
+        if (num !== '*' && matchInfo.length >= Number(num)) {
           break
         }
       }
