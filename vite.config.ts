@@ -42,13 +42,13 @@ export default defineConfig({
         /**
          * 与页面同级，并在某个时机执行，可以拿到页面的 document
          * */
-        // content: resolve(__dirname, 'src/content.ts'),
+        content: resolve(__dirname, 'src/content.ts')
       },
       output: {
-        assetFileNames: "[name].[ext]",
-        entryFileNames: "[name].js",
-        chunkFileNames: "[name].js",
-      },
-    },
-  },
+        assetFileNames: '[name].[ext]',
+        entryFileNames: '[name].js',
+        chunkFileNames: '[name].js'
+      }
+    }
+  }
 })
