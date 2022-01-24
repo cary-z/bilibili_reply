@@ -26,7 +26,5 @@ import './popup/main.css'
 
 import AppComponent from './popup/App.vue'
 const app = createApp(AppComponent)
-// const ElArr = [ElButton, ElInput, ElMessage, ElForm, ElFormItem]
-// ElArr.forEach((item) => app.use(item))
 app.use(ElementPlus)
 app.mount('#testapp')

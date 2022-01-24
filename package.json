@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "scripts": {
     "build": "vue-tsc --noEmit && vite build",
-    "build-watch": "vue-cli-service build --watch",
+    "build-watch": "vite build --watch",
     "dev": "vite",
     "preview": "vite preview"
   },
