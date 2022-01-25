@@ -1,10 +1,5 @@
 /// <reference types="chrome"/>
-const flag = window.location.pathname.includes('video')
-if (flag) {
-  const bvid = /\/video\/(\w+)/.exec(window.location.pathname)?.[1]
-  console.log(bvid)
-  bvid && localStorage.setItem('REPLY_FILTER', JSON.stringify({ bvid }))
-}
+
 const div = document.createElement('div')
 div.style.position = 'fixed'
 div.style.transform = 'translateX(100%)'

@@ -5,9 +5,12 @@ import { stringToRegexp } from '../libs/regexp'
 import { SleepMS } from '../libs/utils'
 import { handleResult } from './useinfo'
 import { IFilter, IView, IMatchInfo, IHandleResult } from './type'
-const reply_filter = localStorage.getItem('REPLY_FILTER')
+
+const bvid = /\/video\/(\w+)/.exec(window.location.pathname)?.[1]
+const storage_filter = localStorage.getItem('REPLY_FILTER')
+const reply_filter = (bvid && { bvid }) || (storage_filter && JSON.parse(storage_filter))
 export const filter = ref<IFilter>(
-  (reply_filter && JSON.parse(reply_filter)) || {
+  reply_filter || {
     // 查询条件
     bvid: '', // BV号
     keyword: '', // 关键词
@@ -68,13 +71,13 @@ export const getReply = async () => {
   clearInfo()
   await SleepMS(200)
   const { bvid, uid, num } = filter.value
+  const oid = window['aid'] || (await getAid(bvid))
   let length = 0
   let next = 0
-  const aid = await getAid(bvid)
   for (let i = 0; ; i++) {
     if (!view.value.flag) break
     console.time(`第${i + 1}个发包`)
-    const result = await handleResult({ next, type: 1, oid: aid, mode: 3, uid, regexp })
+    const result = await handleResult({ next, type: 1, oid, mode: 3, uid, regexp })
     console.timeEnd(`第${i + 1}个发包`)
     if (result.flag) {
       length += (result as IHandleResult).length + (result as IHandleResult).extraInfo.rp_num
