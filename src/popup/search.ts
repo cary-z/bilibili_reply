@@ -4,15 +4,18 @@ import { getAid } from '../api/reply'
 import { stringToRegexp } from '../libs/regexp'
 import { SleepMS } from '../libs/utils'
 import { handleResult } from './useinfo'
-import { IView, IMatchInfo, IHandleResult } from './type'
-export const filter = ref({
-  // 查询条件
-  bvid: '', // BV号
-  keyword: '', // 关键词
-  uid: '', // b站用户id
-  num: '1', // 限制数量
-  mode: false // 模式（关键词或者正则）
-})
+import { IFilter, IView, IMatchInfo, IHandleResult } from './type'
+const reply_filter = localStorage.getItem('REPLY_FILTER')
+export const filter = ref<IFilter>(
+  (reply_filter && JSON.parse(reply_filter)) || {
+    // 查询条件
+    bvid: '', // BV号
+    keyword: '', // 关键词
+    uid: '', // b站用户id
+    num: '1', // 限制数量
+    mode: false // 模式（关键词或者正则）
+  }
+)
 export const view = ref<IView>({
   flag: false,
   reply_total: 0,
@@ -80,10 +83,12 @@ export const getReply = async () => {
       next = (result as IHandleResult).extraInfo.next
       if (result.info && result.info.length > 0) {
         console.log((result as IHandleResult).info)
-        matchInfo.value.push(...(result as IHandleResult).info)
-        console.log('搜索到了')
-        if (num !== '*' && matchInfo.value.length >= Number(num)) {
-          break
+        for (const item of (result as IHandleResult).info) {
+          matchInfo.value.push(item)
+          if (num !== '*' && matchInfo.value.length >= Number(num ?? 0)) {
+            view.value.flag = false
+            break
+          }
         }
       }
     } else {

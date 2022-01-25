@@ -1,3 +1,10 @@
+export interface IFilter {
+  bvid: string
+  keyword: string
+  uid: string
+  num: string
+  mode: boolean
+}
 export interface IView {
   flag: boolean
   reply_total: number

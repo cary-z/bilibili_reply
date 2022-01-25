@@ -30,7 +30,7 @@ export default defineConfig({
          * 插件的核心 JS，一直活跃在后台，来监听所有请求
          * */
         // background: resolve(__dirname, 'src/background/index.html'),
-        background: resolve(__dirname, 'src/background.js'),
+        background: resolve(__dirname, 'src/background.ts'),
         /**
          * 加载 chrome devtool pane 的入口
          * */
@@ -42,7 +42,8 @@ export default defineConfig({
         /**
          * 与页面同级，并在某个时机执行，可以拿到页面的 document
          * */
-        content: resolve(__dirname, 'src/content.ts')
+        content: resolve(__dirname, 'src/content.ts'),
+        main: resolve(__dirname, 'src/main.ts')
       },
       output: {
         assetFileNames: '[name].[ext]',

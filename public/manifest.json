@@ -20,10 +20,11 @@
     "content_scripts": 
 	[
 		{
-			"matches": ["<all_urls>"],
+			"matches": ["https://www.bilibili.com/video/*"],
 			"js": ["content.js"],
 			"run_at": "document_end"
 		}
 	],
-    "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'"
+    "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
+    "web_accessible_resources": ["main.js","vendor.js","App.js","vendor.css","App.css"]
 }
