@@ -48,7 +48,7 @@
         </el-col>
       </el-row>
     </el-form>
-    <div>
+    <div class="search_button">
       <el-button type="primary"
                  :loading="view.flag"
                  @click="getReply">搜索</el-button>
@@ -74,4 +74,8 @@ watchEffect(() => {
 })
 </script>
 
-<style scoped></style>
+<style scoped>
+.search_button {
+  display: flex;
+}
+</style>

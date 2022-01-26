@@ -20,7 +20,11 @@
             <a :href="'https://space.bilibili.com/'+item.uid"
                target="_blank"
                class="uname">{{item.uname}}</a>
-            <div class="message">{{item.message}}</div>
+            <p v-if="/\n/.test(item.message)"
+               v-html="item.message.replace(/\n/g,'<br>')"
+               class="message"></p>
+            <p v-else
+               class="message">{{item.message}}</p>
             <div class="time">{{formatTime(item.time)}}</div>
           </div>
         </div>
@@ -35,8 +39,8 @@
 </template>
 
 <script lang="ts" setup>
-import { view, matchInfo } from "./search";
-import { formatTime } from "../libs/utils";
+import { view, matchInfo } from './search'
+import { formatTime } from '../libs/utils'
 </script>
 
 <style lang="scss" scoped>
