@@ -1,18 +1,20 @@
 import { ref } from 'vue'
 import { ElMessage } from 'element-plus'
-import { getAid } from '../api/reply'
+import { getAidFormBVid, getAidFormOtherId } from '../api/reply'
 import { stringToRegexp } from '../libs/regexp'
 import { SleepMS } from '../libs/utils'
 import { handleResult } from './useinfo'
 import { IFilter, IView, IMatchInfo, IHandleResult } from './type'
 
 const bvid = /\/video\/(\w+)/.exec(window.location.pathname)?.[1]
+const otherid = /\/bangumi\/play\/(\w+)/.exec(window.location.pathname)?.[1]
 const storage_filter = localStorage.getItem('REPLY_FILTER')
-const reply_filter = (bvid && { bvid }) || (storage_filter && JSON.parse(storage_filter))
+const reply_filter = ((bvid || otherid) && { bvid, otherid }) || (storage_filter && JSON.parse(storage_filter))
 export const filter = ref<IFilter>(
   reply_filter || {
     // 查询条件
     bvid: '', // BV号
+    otherid: '', // 番剧号
     keyword: '', // 关键词
     uid: '', // b站用户id
     num: '1', // 限制数量
@@ -59,49 +61,57 @@ const getRegexp = () => {
   return regexp
 }
 
+const getOid = async () => {
+  const { bvid, otherid } = filter.value
+  if (window['aid']) return window['aid'] as string
+  else if (bvid) return await getAidFormBVid(bvid)
+  else if (otherid) return await getAidFormOtherId(otherid)
+  else throw new Error('无法获取oid')
+}
+
 export const getReply = async () => {
-  let regexp: RegExp | null
   try {
+    let regexp: RegExp | null
     checkPara()
     regexp = getRegexp()
-  } catch (err) {
-    ElMessage.error((err as Error).message)
-    return
-  }
-  clearInfo()
-  await SleepMS(200)
-  const { bvid, uid, num } = filter.value
-  const oid = window['aid'] || (await getAid(bvid))
-  let length = 0
-  let next = 0
-  for (let i = 0; ; i++) {
-    if (!view.value.flag) break
-    console.time(`第${i + 1}个发包`)
-    const result = await handleResult({ next, type: 1, oid, mode: 3, uid, regexp })
-    console.timeEnd(`第${i + 1}个发包`)
-    if (result.flag) {
-      length += (result as IHandleResult).length + (result as IHandleResult).extraInfo.rp_num
-      view.value.reply_cur = length
-      view.value.reply_total = (result as IHandleResult).extraInfo.all_count
-      next = (result as IHandleResult).extraInfo.next
-      if (result.info && result.info.length > 0) {
-        console.log((result as IHandleResult).info)
-        for (const item of (result as IHandleResult).info) {
-          matchInfo.value.push(item)
-          if (num !== '*' && matchInfo.value.length >= Number(num ?? 0)) {
-            view.value.flag = false
-            break
+    clearInfo()
+    await SleepMS(200)
+    const { uid, num } = filter.value
+    const oid = await getOid()
+    let length = 0
+    let next = 0
+    for (let i = 0; ; i++) {
+      if (!view.value.flag) break
+      console.time(`第${i + 1}个发包`)
+      const result = await handleResult({ next, type: 1, oid, mode: 3, uid, regexp })
+      console.timeEnd(`第${i + 1}个发包`)
+      if (result.flag) {
+        length += (result as IHandleResult).length + (result as IHandleResult).extraInfo.rp_num
+        view.value.reply_cur = length
+        view.value.reply_total = (result as IHandleResult).extraInfo.all_count
+        next = (result as IHandleResult).extraInfo.next
+        if (result.info && result.info.length > 0) {
+          console.log((result as IHandleResult).info)
+          for (const item of (result as IHandleResult).info) {
+            matchInfo.value.push(item)
+            if (num !== '*' && matchInfo.value.length >= Number(num ?? 0)) {
+              view.value.flag = false
+              break
+            }
           }
         }
+      } else {
+        view.value.reply_cur = view.value.reply_total
+        console.log('未搜索到')
+        break
       }
-    } else {
-      view.value.reply_cur = view.value.reply_total
-      console.log('未搜索到')
-      break
+      await SleepMS(500)
     }
-    await SleepMS(500)
+    ElMessage.success('搜索完成')
+    view.value.flag = false
+    console.log('找过的评论个数为' + length)
+  } catch (err) {
+    ElMessage.error((err as Error).message)
+    view.value.flag = false
   }
-  ElMessage.success('搜索完成')
-  view.value.flag = false
-  console.log('找过的评论个数为' + length)
 }

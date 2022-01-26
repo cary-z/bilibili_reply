@@ -1,5 +1,4 @@
 import axios from './api_base'
-import { IReplies } from '../popup/type'
 
 interface IGetReplyPara {
   next?: number // 下个索引
@@ -24,7 +23,7 @@ export function getReplyInfo({ next = 0, type = 1, oid, mode = 3 }: IGetReplyPar
     .catch((err: any) => err)
 }
 
-export async function getAid(bvid: string) {
+export async function getAidFormBVid(bvid: string) {
   try {
     const url1 = `https://api.bilibili.com/x/player/pagelist?bvid=${bvid}`
     const [{ cid }] = (await axios.get(url1).then((res: { data: any }) => res.data)).data
@@ -39,3 +38,23 @@ export async function getAid(bvid: string) {
     throw new Error('BV号有误')
   }
 }
+
+export async function getAidFormOtherId(otherid: string) {
+  try {
+    const type_map = { ep: 'ep_id', ss: 'season_id' }
+    const short_type = otherid.slice(0, 2)
+    const trueid = otherid.slice(2)
+    const url = `https://api.bilibili.com/pgc/view/web/season?${type_map[short_type]}=${trueid}`
+    const data = await axios.get(url).then((res: { data: any }) => res.data)
+    const episodes = data.result.episodes
+    const aid: string = episodes.find(item => item.id == trueid).aid
+    return aid
+  } catch (err) {
+    console.log(err)
+    if ((err as Error).message.includes('Network')) {
+      throw new Error((err as Error).message)
+    }
+    throw new Error('番剧号有误')
+  }
+}
+

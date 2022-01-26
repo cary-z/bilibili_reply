@@ -1,5 +1,6 @@
 export interface IFilter {
   bvid: string
+  otherid: string
   keyword: string
   uid: string
   num: string
