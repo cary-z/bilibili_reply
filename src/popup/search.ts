@@ -1,20 +1,20 @@
 import { ref } from 'vue'
 import { ElMessage } from 'element-plus'
-import { getAidFormBVid, getAidFormOtherId } from '../api/reply'
+import { getAidFormBVid, getAidFormEpId } from '../api/reply'
 import { stringToRegexp } from '../libs/regexp'
 import { SleepMS } from '../libs/utils'
 import { handleResult } from './useinfo'
 import { IFilter, IView, IMatchInfo, IHandleResult } from './type'
 
 const bvid = /\/video\/(\w+)/.exec(window.location.pathname)?.[1]
-const otherid = /\/bangumi\/play\/(\w+)/.exec(window.location.pathname)?.[1]
+const epid = window['ep']?.id ?? /\/bangumi\/play\/ep(\w+)/.exec(window.location.pathname)?.[1]
 const storage_filter = localStorage.getItem('REPLY_FILTER')
-const reply_filter = ((bvid || otherid) && { bvid, otherid }) || (storage_filter && JSON.parse(storage_filter))
+const reply_filter = ((bvid || epid) && { bvid, epid }) || (storage_filter && JSON.parse(storage_filter))
 export const filter = ref<IFilter>(
   reply_filter || {
     // 查询条件
     bvid: '', // BV号
-    otherid: '', // 番剧号
+    epid: '', // 番剧号
     keyword: '', // 关键词
     uid: '', // b站用户id
     num: '1', // 限制数量
@@ -27,6 +27,12 @@ export const view = ref<IView>({
   reply_cur: 0
 })
 export const matchInfo = ref<IMatchInfo[]>([])
+
+// 番剧切换集数
+window.addEventListener("replaceState", () => {
+  const epid = /\/bangumi\/play\/ep(\w+)/.exec(window.location.pathname)?.[1]
+  if (epid) filter.value = {...filter.value, epid }
+})
 
 export const clearInfo = () => {
   matchInfo.value = []
@@ -62,10 +68,11 @@ const getRegexp = () => {
 }
 
 const getOid = async () => {
-  const { bvid, otherid } = filter.value
+  const { bvid, epid } = filter.value
   if (window['aid']) return window['aid'] as string
+  else if (window['ep']?.id == filter.value.epid) return window['ep'].aid + ''
   else if (bvid) return await getAidFormBVid(bvid)
-  else if (otherid) return await getAidFormOtherId(otherid)
+  else if (epid) return await getAidFormEpId(epid)
   else throw new Error('无法获取oid')
 }
 

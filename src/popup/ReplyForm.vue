@@ -3,10 +3,10 @@
     <el-form label-position="left">
       <el-row :gutter="10">
         <el-col :span="12">
-          <el-form-item v-if="filter.otherid"
+          <el-form-item v-if="filter.epid"
                         label="番剧号">
             <el-input placeholder="请输入番剧号"
-                      v-model="filter.otherid"></el-input>
+                      v-model="filter.epid"></el-input>
           </el-form-item>
           <el-form-item v-else
                         label="BV号">

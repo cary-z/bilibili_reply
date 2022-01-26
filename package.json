@@ -2,8 +2,9 @@
   "name": "bilibili_reply",
   "version": "0.0.0",
   "scripts": {
-    "build": "vue-tsc --noEmit && vite build",
-    "build-watch": "vue-tsc --noEmit && vite build --watch",
+    "tsc": "vue-tsc --noEmit",
+    "build": "vite build",
+    "build-watch": "vite build --watch",
     "dev": "vite",
     "preview": "vite preview"
   },

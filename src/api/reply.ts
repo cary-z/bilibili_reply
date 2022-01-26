@@ -39,15 +39,12 @@ export async function getAidFormBVid(bvid: string) {
   }
 }
 
-export async function getAidFormOtherId(otherid: string) {
+export async function getAidFormEpId(epid: string) {
   try {
-    const type_map = { ep: 'ep_id', ss: 'season_id' }
-    const short_type = otherid.slice(0, 2)
-    const trueid = otherid.slice(2)
-    const url = `https://api.bilibili.com/pgc/view/web/season?${type_map[short_type]}=${trueid}`
+    const url = `https://api.bilibili.com/pgc/view/web/season?ep_id=${epid}`
     const data = await axios.get(url).then((res: { data: any }) => res.data)
     const episodes = data.result.episodes
-    const aid: string = episodes.find(item => item.id == trueid).aid
+    const aid: string = episodes.find(item => item.id == epid).aid
     return aid
   } catch (err) {
     console.log(err)
