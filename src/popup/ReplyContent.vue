@@ -21,9 +21,11 @@
                target="_blank"
                class="uname">{{item.uname}}</a>
             <p v-if="/\n/.test(item.message)"
+               style="white-space:normal; word-break:break-all;overflow:hidden;"
                v-html="item.message.replace(/\n/g,'<br>')"
                class="message"></p>
             <p v-else
+               style="white-space:normal; word-break:break-all;overflow:hidden;"
                class="message">{{item.message}}</p>
             <div class="time">{{formatTime(item.time)}}</div>
           </div>
