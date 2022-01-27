@@ -1,13 +1,18 @@
 import { ref } from 'vue'
 import { ElMessage } from 'element-plus'
-import { getAidFormBVid, getAidFormEpId } from '../api/reply'
+import { getAidFormBVid, getEPFormEpId, getTitleInfo } from '../api/reply'
 import { stringToRegexp } from '../libs/regexp'
 import { SleepMS } from '../libs/utils'
 import { handleResult } from './useinfo'
 import { IFilter, IView, IMatchInfo, IHandleResult } from './type'
 
-const bvid = /\/video\/(\w+)/.exec(window.location.pathname)?.[1]
-const epid = window['ep']?.id ?? /\/bangumi\/play\/ep(\w+)/.exec(window.location.pathname)?.[1]
+const getInitInfo = () => {
+  const bvid: string = window['bvid'] ?? /\/video\/(\w+)/.exec(window.location.pathname)?.[1] ?? ''
+  const epid: string = window['ep']?.id ?? /\/bangumi\/play\/ep(\w+)/.exec(window.location.pathname)?.[1] ?? ''
+  return { bvid, epid }
+}
+
+const { bvid, epid } = getInitInfo()
 const storage_filter = localStorage.getItem('REPLY_FILTER')
 const reply_filter = ((bvid || epid) && { bvid, epid }) || (storage_filter && JSON.parse(storage_filter))
 export const filter = ref<IFilter>(
@@ -21,6 +26,7 @@ export const filter = ref<IFilter>(
     mode: false // 模式（关键词或者正则）
   }
 )
+export const title = ref('')
 export const view = ref<IView>({
   flag: false,
   reply_total: 0,
@@ -28,11 +34,35 @@ export const view = ref<IView>({
 })
 export const matchInfo = ref<IMatchInfo[]>([])
 
-// 番剧切换集数
-window.addEventListener("replaceState", () => {
-  const epid = /\/bangumi\/play\/ep(\w+)/.exec(window.location.pathname)?.[1]
-  if (epid) filter.value = {...filter.value, epid }
-})
+const getTitle = async () => {
+  try {
+    const { epid, bvid } = filter.value
+    if (epid) {
+      if (epid == getInitInfo().epid) title.value = window?.['ep']?.share_copy
+      else title.value = (await getEPFormEpId(epid)).share_copy
+    }
+    else if (bvid) {
+      if (bvid == getInitInfo().bvid) title.value = await getTitleInfo(window['aid'])
+      else {
+        const aid = await getAidFormBVid(bvid)
+        title.value = await getTitleInfo(aid)
+      }
+    }
+  } catch (err) {
+    ElMessage.error((err as Error).message)
+  }
+}
+getTitle()
+
+// 番剧切换集数 或者根据推荐切换视频
+const switchUpdate = async () => {
+  const epid = /\/bangumi\/play\/ep(\w+)/.exec(window.location.pathname)?.[1] ?? ''
+  const bvid = /\/video\/(\w+)/.exec(window.location.pathname)?.[1] ?? ''
+  filter.value = { ...filter.value, bvid, epid }
+  getTitle()
+}
+window.addEventListener("replaceState", switchUpdate)
+window.addEventListener("pushState", switchUpdate)
 
 export const clearInfo = () => {
   matchInfo.value = []
@@ -69,11 +99,18 @@ const getRegexp = () => {
 
 const getOid = async () => {
   const { bvid, epid } = filter.value
-  if (window['aid']) return window['aid'] as string
-  else if (window['ep']?.id == filter.value.epid) return window['ep'].aid + ''
-  else if (bvid) return await getAidFormBVid(bvid)
-  else if (epid) return await getAidFormEpId(epid)
-  else throw new Error('无法获取oid')
+  if (bvid) {
+    if (bvid == window['bvid']) return window['aid']
+    else {
+      getTitle()
+      return await getAidFormBVid(bvid)
+    }
+  } else if (epid) {
+    if (window['ep']?.id == epid) return window['ep'].aid + ''
+    else return (await getEPFormEpId(epid)).aid
+  } else {
+    throw new Error('无法获取oid')
+  }
 }
 
 export const getReply = async () => {

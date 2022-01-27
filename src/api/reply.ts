@@ -6,7 +6,11 @@ interface IGetReplyPara {
   oid: string // 视频aid
   mode?: number // 模式 2 按时间排序 3 按热度排序
 }
-export function getReplyInfo({ next = 0, type = 1, oid, mode = 3 }: IGetReplyPara) {
+export async function getReplyInfo(getReplyPara: IGetReplyPara) {
+  return getReplyNewAPI(getReplyPara)
+}
+
+async function getReplyNewAPI({ next = 0, type = 1, oid, mode = 3 }: IGetReplyPara) {
   return axios
     .get('https://api.bilibili.com/x/v2/reply/main', {
       params: {
@@ -15,8 +19,28 @@ export function getReplyInfo({ next = 0, type = 1, oid, mode = 3 }: IGetReplyPar
         type,
         oid,
         mode,
-        plat: 1,
-        _: Date.now()
+        plat: 1
+      }
+    })
+    .then((res) => res.data.data)
+    .catch((err: any) => err)
+}
+
+async function getReplyOldAPI({ next = 0, type = 1, oid, mode = 3 }: IGetReplyPara) {
+  // 模式映射
+  const modeMap = {
+    2: 0, // 时间排序
+    3: 2 // 热度排序
+  }
+  return axios
+    .get('https://api.bilibili.com/x/v2/reply', {
+      params: {
+        pn: next,
+        ps: 49,
+        type,
+        oid,
+        mode,
+        sort: modeMap[mode]
       }
     })
     .then((res) => res.data.data)
@@ -39,19 +63,32 @@ export async function getAidFormBVid(bvid: string) {
   }
 }
 
-export async function getAidFormEpId(epid: string) {
+export async function getEPFormEpId(epid: string) {
   try {
     const url = `https://api.bilibili.com/pgc/view/web/season?ep_id=${epid}`
     const data = await axios.get(url).then((res: { data: any }) => res.data)
-    const episodes = data.result.episodes
-    const aid: string = episodes.find(item => item.id == epid).aid
-    return aid
+    const episodes = data.result.episodes.find(item => item.id == epid)
+    return episodes
   } catch (err) {
     console.log(err)
     if ((err as Error).message.includes('Network')) {
       throw new Error((err as Error).message)
     }
-    throw new Error('番剧号有误')
+    throw new Error('EP号有误')
+  }
+}
+
+export async function getTitleInfo(aid: string): Promise<string> {
+  try {
+    const url = `https://api.bilibili.com/x/web-interface/view?aid=${aid}`
+    const { title } = (await axios.get(url).then((res: { data: any }) => res.data)).data
+    return title
+  } catch (err) {
+    console.log(err)
+    if ((err as Error).message.includes('Network')) {
+      throw new Error((err as Error).message)
+    }
+    throw new Error('无法获取标题')
   }
 }
 

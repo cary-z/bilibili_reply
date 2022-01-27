@@ -31,10 +31,10 @@ button.addEventListener('click', () => {
   const insetApp = document.getElementById('insetApp')
   if (insetApp) {
     if (div.style.transform === 'translateX(100%)') {
-      document.body.style.overflowY = 'hidden'
+      // document.body.style.overflowY = 'hidden'
       div.style.transform = ''
     } else if (div.style.transform === '') {
-      document.body.style.overflowY = 'scroll'
+      // document.body.style.overflowY = 'scroll'
       div.style.transform = 'translateX(100%)'
     }
   }
@@ -42,7 +42,6 @@ button.addEventListener('click', () => {
 
 const app = document.createElement('div')
 app.id = 'insetApp'
-// app.style.minWidth = '600px'
 app.style.height = '100vh'
 app.style.backgroundColor = '#fff'
 app.style.overflowY = 'scroll'
