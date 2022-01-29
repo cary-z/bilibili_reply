@@ -18,16 +18,22 @@
         </el-col>
       </el-row>
       <el-row :gutter="10">
-        <el-col :span="16">
-          <el-form-item :label="filter.mode ? '正则表达式' : '关键词'">
+        <el-col :span="12">
+          <el-form-item :label="filter.searchMode ? '正则表达式' : '关键词'">
             <el-input
-              :placeholder="'请输入' + (filter.mode ? '正则表达式' : '关键词')"
+              :placeholder="'请输入' + (filter.searchMode ? '正则表达式' : '关键词')"
               v-model="filter.keyword"
             ></el-input>
           </el-form-item>
         </el-col>
-        <el-col :span="8">
-          <el-switch v-model="filter.mode" size="large" active-text="正则模式" />
+        <el-col :span="6">
+          <el-switch v-model="filter.searchMode" size="large" active-text="正则模式" />
+        </el-col>
+        <el-col :span="6">
+          <el-select v-model="filter.mode" placeholder="选择排序模式" size="large">
+            <el-option label="热度排序" :value="3"></el-option>
+            <el-option label="时间排序" :value="2"></el-option>
+          </el-select>
         </el-col>
       </el-row>
       <el-row :gutter="10">

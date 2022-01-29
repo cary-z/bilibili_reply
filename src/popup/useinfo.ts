@@ -18,8 +18,8 @@ export async function handleResult({ next, type, oid, mode, uid, regexp }: ISend
     return { flag: false }
   }
   let rp_num = 0
-  const all_replies = next ? result.replies : result.replies.concat(result.top_replies ?? [])
-  const replies = all_replies.map((item) => {
+  const all_replies = next ? result.replies : (result.top_replies ?? []).concat(result.replies)
+  all_replies.forEach((item) => {
     const content: IMatchInfo = {
       uid: item.mid,
       uname: item.member.uname,
@@ -27,9 +27,11 @@ export async function handleResult({ next, type, oid, mode, uid, regexp }: ISend
       sex: item.member.sex,
       rpid: item.rpid,
       message: item.content.message,
-      time: item.ctime
+      time: item.ctime,
+      nickname_color: item.member.vip.nickname_color
     }
-    rp_num += Number(item.reply_control?.sub_reply_entry_text?.replace(/共(\d+)条回复/, '$1') || 0)
+    // rp_num += Number(item.reply_control?.sub_reply_entry_text?.replace(/共(\d+)条回复/, '$1') || 0)
+    rp_num += item.count || 1
     if (uid && Number(uid) === item.mid) {
       if (regexp) regexp.test(content.message) && info.push(content)
       else info.push(content)
@@ -44,7 +46,7 @@ export async function handleResult({ next, type, oid, mode, uid, regexp }: ISend
   }
   return {
     flag: true,
-    length: replies.length,
+    // length: replies.length,
     extraInfo: { next: result.cursor.next, rp_num, all_count: result.cursor.all_count },
     info
   }

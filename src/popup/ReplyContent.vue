@@ -1,39 +1,36 @@
 <template>
   <div>
-    <div style="text-align: right;">{{ view.reply_cur }}/{{ view.reply_total }}</div>
+    <div style="text-align: right">{{ view.reply_cur }}/{{ view.reply_total }}</div>
     <el-progress
       :text-inside="true"
       :stroke-width="20"
-      :percentage="Math.ceil(view.reply_cur / view.reply_total * 100) || 0"
+      :percentage="Math.ceil((view.reply_cur / view.reply_total) * 100) || 0"
       status="success"
     />
     <div>
       <template v-if="matchInfo.length > 0">
-        <div v-for="(item,index) in matchInfo" :key="'matchInfo_' + index" class="info p-1">
-          <el-tooltip
-            effect="dark"
-            :content="`序号:${index + 1} uid:${item.uid}`"
-            placement="top-start"
-          >
+        <div v-for="(item, index) in matchInfo" :key="'matchInfo_' + index" class="info p-1">
+          <el-tooltip effect="dark" :content="`序号:${index + 1} uid:${item.uid}`" placement="top-start">
             <img :src="item.avatar" class="avatar" />
           </el-tooltip>
           <div class="ml-2">
             <a
+              :style="`color:${item.nickname_color || '#6d757a'}`"
               :href="'https://space.bilibili.com/' + item.uid"
               target="_blank"
               class="uname"
-            >{{ item.uname }}</a>
+            >
+              {{ item.uname }}
+            </a>
             <p
               v-if="/\n/.test(item.message)"
-              style="white-space:normal; word-break:break-all;overflow:hidden;"
+              style="white-space: normal; word-break: break-all; overflow: hidden"
               v-html="item.message.replace(/\n/g, '<br>')"
               class="message"
             ></p>
-            <p
-              v-else
-              style="white-space:normal; word-break:break-all;overflow:hidden;"
-              class="message"
-            >{{ item.message }}</p>
+            <p v-else style="white-space: normal; word-break: break-all; overflow: hidden" class="message">
+              {{ item.message }}
+            </p>
             <div class="time">{{ formatTime(item.time) }}</div>
           </div>
         </div>
@@ -63,7 +60,6 @@ import { formatTime } from '../libs/utils'
     border-radius: 50%;
   }
   .uname {
-    color: #fb7299;
     font-weight: bold;
     line-height: 18px;
   }

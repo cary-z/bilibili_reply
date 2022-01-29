@@ -14,7 +14,7 @@ const getInitInfo = () => {
 
 const { bvid, epid } = getInitInfo()
 const storage_filter = localStorage.getItem('REPLY_FILTER')
-const reply_filter = ((bvid || epid) && { bvid, epid }) || (storage_filter && JSON.parse(storage_filter))
+const reply_filter = ((bvid || epid) && { bvid, epid, mode: 3 }) || (storage_filter && JSON.parse(storage_filter))
 export const filter = ref<IFilter>(
   reply_filter || {
     // 查询条件
@@ -23,7 +23,8 @@ export const filter = ref<IFilter>(
     keyword: '', // 关键词
     uid: '', // b站用户id
     num: '1', // 限制数量
-    mode: false // 模式（关键词或者正则）
+    searchMode: false, // 模式（关键词或者正则）
+    mode: 3 // 模式（热度或者时间）
   }
 )
 export const title = ref('')
@@ -79,9 +80,9 @@ const checkPara = () => {
 }
 
 const getRegexp = () => {
-  const { keyword, mode } = filter.value
+  const { keyword, searchMode } = filter.value
   let regexp: RegExp | null
-  if (mode) {
+  if (searchMode) {
     try {
       regexp = eval(keyword)
     } catch (err) {
@@ -120,17 +121,17 @@ export const getReply = async () => {
     regexp = getRegexp()
     clearInfo()
     await SleepMS(200)
-    const { uid, num } = filter.value
+    const { uid, num, mode } = filter.value
     const oid = await getOid()
     let length = 0
     let next = 0
     for (let i = 0; ; i++) {
       if (!view.value.flag) break
       console.time(`第${i + 1}个发包`)
-      const result = await handleResult({ next, type: 1, oid, mode: 3, uid, regexp })
+      const result = await handleResult({ next, type: 1, oid, mode, uid, regexp })
       console.timeEnd(`第${i + 1}个发包`)
       if (result.flag) {
-        length += (result as IHandleResult).length + (result as IHandleResult).extraInfo.rp_num
+        length += (result as IHandleResult).extraInfo.rp_num
         view.value.reply_cur = length
         view.value.reply_total = (result as IHandleResult).extraInfo.all_count
         next = (result as IHandleResult).extraInfo.next

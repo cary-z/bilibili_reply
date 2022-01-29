@@ -4,7 +4,8 @@ export interface IFilter {
   keyword: string
   uid: string
   num: string
-  mode: boolean
+  searchMode: boolean
+  mode: number
 }
 export interface IView {
   flag: boolean
@@ -19,6 +20,7 @@ export interface IMatchInfo {
   rpid: number
   message: string
   time: number
+  nickname_color: string
 }
 
 export interface ISendPara {
@@ -32,7 +34,7 @@ export interface ISendPara {
 
 export interface IHandleResult {
   flag: boolean
-  length: number
+  // length: number
   extraInfo: {
     next: number
     rp_num: number
@@ -47,10 +49,14 @@ export interface IReplies {
     uname: string
     avatar: string
     sex: string
+    vip: {
+      nickname_color: string
+    }
   }
   content: {
     message: string
-  }
+  },
+  count: number
   reply_control: {
     sub_reply_entry_text: string
   }
