@@ -5,15 +5,15 @@
       <el-row :gutter="10">
         <el-col :span="12">
           <el-form-item v-if="filter.epid" label="EP号">
-            <el-input placeholder="请输入EP号" v-model="filter.epid"></el-input>
+            <el-input placeholder="请输入EP号" v-model="filter.epid" clearable></el-input>
           </el-form-item>
           <el-form-item v-else label="BV号">
-            <el-input placeholder="请输入BV号" v-model="filter.bvid"></el-input>
+            <el-input placeholder="请输入BV号" v-model="filter.bvid" clearable></el-input>
           </el-form-item>
         </el-col>
         <el-col :span="12">
           <el-form-item label="uid">
-            <el-input placeholder="请输入uid" v-model="filter.uid"></el-input>
+            <el-input placeholder="请输入uid" v-model="filter.uid" clearable></el-input>
           </el-form-item>
         </el-col>
       </el-row>
@@ -23,6 +23,7 @@
             <el-input
               :placeholder="'请输入' + (filter.searchMode ? '正则表达式' : '关键词')"
               v-model="filter.keyword"
+              clearable
             ></el-input>
           </el-form-item>
         </el-col>
@@ -30,7 +31,7 @@
           <el-switch v-model="filter.searchMode" size="large" active-text="正则模式" />
         </el-col>
         <el-col :span="6">
-          <el-select v-model="filter.mode" placeholder="选择排序模式" size="large">
+          <el-select v-model="filter.mode" placeholder="选择排序模式" size="large" clearable>
             <el-option label="热度排序" :value="3"></el-option>
             <el-option label="时间排序" :value="2"></el-option>
           </el-select>
@@ -39,7 +40,7 @@
       <el-row :gutter="10">
         <el-col :span="12">
           <el-form-item label="数量">
-            <el-input placeholder="请输入数量" :model-value="filter.num" @input="limitInput"></el-input>
+            <el-input placeholder="请输入数量" :model-value="filter.num" @input="limitInput" clearable></el-input>
           </el-form-item>
         </el-col>
         <el-col :span="12">
