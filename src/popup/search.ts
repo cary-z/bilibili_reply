@@ -41,8 +41,7 @@ const getTitle = async () => {
     if (epid) {
       if (epid == getInitInfo().epid) title.value = window?.['ep']?.share_copy
       else title.value = (await getEPFormEpId(epid)).share_copy
-    }
-    else if (bvid) {
+    } else if (bvid) {
       if (bvid == getInitInfo().bvid) title.value = await getTitleInfo(window['aid'])
       else {
         const aid = await getAidFormBVid(bvid)
@@ -62,8 +61,8 @@ const switchUpdate = async () => {
   filter.value = { ...filter.value, bvid, epid }
   getTitle()
 }
-window.addEventListener("replaceState", switchUpdate)
-window.addEventListener("pushState", switchUpdate)
+window.addEventListener('replaceState', switchUpdate)
+window.addEventListener('pushState', switchUpdate)
 
 export const clearInfo = () => {
   matchInfo.value = []
@@ -116,9 +115,8 @@ const getOid = async () => {
 
 export const getReply = async () => {
   try {
-    let regexp: RegExp | null
     checkPara()
-    regexp = getRegexp()
+    const regexp = getRegexp()
     clearInfo()
     await SleepMS(200)
     const { uid, num, mode } = filter.value

@@ -37,7 +37,7 @@ export async function handleResult({ next, type, oid, mode, uid, regexp }: ISend
       else info.push(content)
     }
     if (!uid) {
-      if (regexp) regexp.test(content.message) && info.push(content)
+      if (regexp?.test(content.message)) info.push(content)
     }
     return content
   })
