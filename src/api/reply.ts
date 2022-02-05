@@ -67,7 +67,7 @@ export async function getEPFormEpId(epid: string) {
   try {
     const url = `https://api.bilibili.com/pgc/view/web/season?ep_id=${epid}`
     const data = await axios.get(url).then((res: { data: any }) => res.data)
-    const episodes = data.result.episodes.find(item => item.id == epid)
+    const episodes = data.result.episodes.find((item) => item.id == epid)
     return episodes
   } catch (err) {
     console.log(err)
@@ -75,6 +75,21 @@ export async function getEPFormEpId(epid: string) {
       throw new Error((err as Error).message)
     }
     throw new Error('EP号有误')
+  }
+}
+
+export async function getAidFormDyid(dyid: string) {
+  try {
+    const url = `https://api.vc.bilibili.com/dynamic_svr/v1/dynamic_svr/get_dynamic_detail?dynamic_id=${dyid}`
+    const data = await axios.get(url).then((res: { data: any }) => res.data)
+    const aid: string = data.data.card.desc.rid_str
+    return aid
+  } catch (err) {
+    console.log(err)
+    if ((err as Error).message.includes('Network')) {
+      throw new Error((err as Error).message)
+    }
+    throw new Error('DY号有误')
   }
 }
 
@@ -91,4 +106,3 @@ export async function getTitleInfo(aid: string): Promise<string> {
     throw new Error('无法获取标题')
   }
 }
-

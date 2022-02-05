@@ -22,7 +22,8 @@
 		{
 			"matches": [
                 "https://www.bilibili.com/video/*",
-                "https://www.bilibili.com/bangumi/play/*"
+                "https://www.bilibili.com/bangumi/play/*",
+                "https://t.bilibili.com/*?tab=2"
             ],
 			"js": ["content.js"],
 			"run_at": "document_end"

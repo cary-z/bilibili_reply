@@ -1,6 +1,7 @@
 export interface IFilter {
   bvid: string
   epid: string
+  dyid: string
   keyword: string
   uid: string
   num: string
@@ -55,7 +56,7 @@ export interface IReplies {
   }
   content: {
     message: string
-  },
+  }
   count: number
   reply_control: {
     sub_reply_entry_text: string

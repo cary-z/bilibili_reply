@@ -7,6 +7,9 @@
           <el-form-item v-if="filter.epid" label="EP号">
             <el-input placeholder="请输入EP号" v-model="filter.epid" clearable></el-input>
           </el-form-item>
+          <el-form-item v-if="filter.dyid" label="DY号">
+            <el-input placeholder="请输入DY号" v-model="filter.dyid" clearable></el-input>
+          </el-form-item>
           <el-form-item v-else label="BV号">
             <el-input placeholder="请输入BV号" v-model="filter.bvid" clearable></el-input>
           </el-form-item>
