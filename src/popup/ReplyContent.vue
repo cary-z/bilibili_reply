@@ -10,8 +10,12 @@
     <div>
       <template v-if="matchInfo.length > 0">
         <div v-for="(item, index) in matchInfo" :key="'matchInfo_' + index" class="info p-1">
-          <el-tooltip effect="dark" :content="`序号:${index + 1} uid:${item.uid}`" placement="top-start">
-            <img :src="item.avatar" class="avatar" />
+          <el-tooltip
+            effect="dark"
+            :content="`序号:${index + 1} uid:${item.uid}`"
+            placement="top-start"
+          >
+            <img :src="item.avatar.replace('http:','https:')" class="avatar" />
           </el-tooltip>
           <div class="ml-2">
             <a
@@ -19,18 +23,18 @@
               :href="'https://space.bilibili.com/' + item.uid"
               target="_blank"
               class="uname"
-            >
-              {{ item.uname }}
-            </a>
+            >{{ item.uname }}</a>
             <p
-              v-if="/\n/.test(item.message)"
+              v-if="/\n/.test(item.message) || item.emote"
               style="white-space: normal; word-break: break-all; overflow: hidden"
-              v-html="item.message.replace(/\n/g, '<br>')"
+              v-html="replaceReply(item.message, item.emote)"
               class="message"
             ></p>
-            <p v-else style="white-space: normal; word-break: break-all; overflow: hidden" class="message">
-              {{ item.message }}
-            </p>
+            <p
+              v-else
+              style="white-space: normal; word-break: break-all; overflow: hidden"
+              class="message"
+            >{{ item.message }}</p>
             <div class="time">{{ formatTime(item.time) }}</div>
           </div>
         </div>
@@ -47,6 +51,16 @@
 <script lang="ts" setup>
 import { view, matchInfo } from './search'
 import { formatTime } from '../libs/utils'
+const replaceReply = (message: string, emote) => {
+  let str = message.replace(/\n/g, '<br>')
+  if (emote) {
+    for (const emoteKey in emote) {
+      const item = emote[emoteKey]
+      str = str.replace(new RegExp(item.text.replace(/(\[|\])/g,'\\$1'), 'g'), `<img style="width:20px;height:20px;vertical-align:text-bottom;" src="${item.url.replace('http:','')}@100w_100h.webp" class="small" alt="${item.text}">`)
+    }
+  }
+  return str
+}
 </script>
 
 <style lang="scss" scoped>

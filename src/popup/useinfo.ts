@@ -27,6 +27,7 @@ export async function handleResult({ next, type, oid, mode, uid, regexp }: ISend
       sex: item.member.sex,
       rpid: item.rpid,
       message: item.content.message,
+      emote: item.content.emote,
       time: item.ctime,
       nickname_color: item.member.vip.nickname_color
     }

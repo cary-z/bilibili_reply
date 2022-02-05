@@ -20,6 +20,7 @@ export interface IMatchInfo {
   sex: string
   rpid: number
   message: string
+  emote: any
   time: number
   nickname_color: string
 }
@@ -56,6 +57,7 @@ export interface IReplies {
   }
   content: {
     message: string
+    emote: any
   }
   count: number
   reply_control: {
