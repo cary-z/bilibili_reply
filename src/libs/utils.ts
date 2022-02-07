@@ -10,5 +10,5 @@ export const formatTime = (time: number = Date.now() / 1000) => {
   const day = date.getDate()
   const hour = date.getHours()
   const minute = date.getMinutes()
-  return `${year}年${month}月${day}日${hour < 10 ? '0' + hour : hour}:${minute < 10 ? '0' + minute : minute}`;
+  return `${year}-${month}-${day} ${hour < 10 ? '0' + hour : hour}:${minute < 10 ? '0' + minute : minute}`;
 };
