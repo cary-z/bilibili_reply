@@ -15,19 +15,23 @@
             :content="`序号:${index + 1} uid:${item.uid}`"
             placement="top-start"
           >
-            <img :src="item.avatar.replace('http:','https:')" class="avatar" />
+            <img :src="item.avatar.replace('http:', 'https:')" class="avatar" />
           </el-tooltip>
           <div class="ml-2">
             <a
-              :style="`color:${item.nickname_color || '#6d757a'}`"
+              :style="`color:${item.nickname_color || '#6d757a'};vertical-align: middle;`"
               :href="'https://space.bilibili.com/' + item.uid"
               target="_blank"
               class="uname"
             >{{ item.uname }}</a>
+            <Svg :level="item.level" />
+            <span v-if="item.upper_uid === item.uid" class="stick_up" style="width:16px">
+              <div class="tinyfont">UP</div>
+            </span>
             <p
-              v-if="/\n/.test(item.message) || item.emote || /\d+((：|:)\d+){1,2}/.test(item.message)"
+              v-if="checkReplace(item)"
               style="white-space: normal; word-break: break-all; overflow: hidden"
-              v-html="replaceReply(item.message, item.emote)"
+              v-html="replaceReply(item)"
               class="message"
             ></p>
             <p
@@ -49,26 +53,66 @@
 </template>
 
 <script lang="ts" setup>
+import Svg from './Svg.vue'
 import { view, matchInfo } from './search'
 import { formatTime } from '../libs/utils'
-const replaceReply = (message: string, emote) => {
-  let str = message.replace(/\n/g, '<br>')
+import { IMatchInfo } from './type'
+
+const regexp = /\d+((：|:)\d+){1,2}/
+const checkReplace = (matchInfo: IMatchInfo) => {
+  return /\n/.test(matchInfo.message) || matchInfo.emote || regexp.test(matchInfo.message) || matchInfo.jump_url || matchInfo.members
+}
+const replaceReply = (matchInfo: IMatchInfo) => {
+  const { message, emote, jump_url, members } = matchInfo
+  let str = message
+  // 处理换行
+  if (/\n/.test(message)) str = str.replace(/\n/g, '<br>')
+  // 处理表情包
   if (emote) {
     for (const emoteKey in emote) {
       const item = emote[emoteKey]
-      str = str.replace(new RegExp(item.text.replace(/(\[|\])/g,'\\$1'), 'g'), `<img style="width:20px;height:20px;vertical-align:text-bottom;" src="${item.url.replace('http:','')}@100w_100h.webp" class="small" alt="${item.text}">`)
+      str = str.replace(
+        new RegExp(item.text.replace(/(\[|\])/g, '\\$1'), 'g'),
+        `<img style="width:20px;height:20px;vertical-align:text-bottom;" src="${item.url.replace(
+          'http:',
+          ''
+        )}@100w_100h.webp" class="small" alt="${item.text}">`
+      )
     }
   }
-  const regexp = /\d+((：|:)\d+){1,2}/
+  // 处理跳转时间
   if (regexp.test(message)) {
-    str = str.replace(/\d+((：|:)\d+){1,2}/g,(match) => {
+    str = str.replace(/\d+((：|:)\d+){1,2}/g, match => {
       if (match.includes(':') || match.includes('：')) {
-        const arr = match.replace(/:|：/g,'-').split('-')
-        const data_time = Number(arr[arr.length - 1]) * 1 + Number(arr[arr.length - 2]) * 60 + (Number(arr?.[arr.length - 3]) * 3600 || 0) + ''
+        const arr = match.replace(/:|：/g, '-').split('-')
+        const data_time =
+          Number(arr[arr.length - 1]) * 1 +
+          Number(arr[arr.length - 2]) * 60 +
+          (Number(arr?.[arr.length - 3]) * 3600 || 0) +
+          ''
         return `<a class="video-seek" onclick="document.querySelector('.bilibili-player-video video').currentTime = this.dataset.time;" data-p="-1" data-time="${data_time}">${match}</a>`
       } else {
         return match
       }
+    })
+  }
+  // 处理视频链接
+  if (Object.keys(jump_url).length > 0) {
+    let index = 0
+    for (const url in jump_url) {
+      const item = jump_url[url]
+      str = str.replace(new RegExp(url, 'g'), `
+        <img style="width: 20px;height: 20px;" src="${item.prefix_icon}" class="jump-img">
+        <a style="vertical-align: middle;" href="//www.bilibili.com/video/${url}" data-report="${index++}" class="comment-jump-url" target="_blank">${item.title}</a>
+      `)
+    }
+  }
+  // 处理@用户
+  if (members.length > 0) {
+    const nameArr = members.map(item => item.uname)
+    str = str.replace(new RegExp('@(' + nameArr.join('|') + ')', 'g'), match => {
+      const index = nameArr.findIndex(item => match.slice(1) === item)
+      return `<a href="//space.bilibili.com/${members[index].mid}" target="_blank" data-usercard-mid="${members[index].mid}">${match} </a>`
     })
   }
   return str
@@ -95,6 +139,30 @@ const replaceReply = (message: string, emote) => {
   }
   .time {
     color: #99a2aa;
+  }
+}
+.stick_up {
+  display: inline-block;
+  vertical-align: middle;
+  min-width: 0px;
+  margin-left: 8px;
+  line-height: 11px;
+  height: 10px;
+  font-size: 9px;
+  border-radius: 1px;
+  background-color: #fb7299;
+  color: #fff;
+  border: 1px solid #ff81aa;
+  .tinyfont {
+    width: 200%;
+    height: 200%;
+    padding-left: 2px;
+    font-weight: 400;
+    transform-origin: center;
+    transform: scale(0.5) translate(-50%, -50%);
+    font-size: 20px;
+    line-height: 20px;
+    box-sizing: border-box;
   }
 }
 .no_result {

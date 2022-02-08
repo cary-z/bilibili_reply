@@ -4,6 +4,7 @@ import { IMatchInfo, ISendPara, IReplies } from './type'
 interface IResult {
   replies: IReplies[]
   top_replies: IReplies[]
+  upper: { mid: number }
   cursor: {
     is_end: boolean
     next: number
@@ -23,11 +24,15 @@ export async function handleResult({ next, type, oid, mode, uid, regexp }: ISend
     const content: IMatchInfo = {
       uid: item.mid,
       uname: item.member.uname,
+      level: item.member.level_info.current_level,
+      upper_uid: result.upper.mid,
       avatar: item.member.avatar,
       sex: item.member.sex,
       rpid: item.rpid,
       message: item.content.message,
       emote: item.content.emote,
+      jump_url: item.content.jump_url,
+      members: item.content.members,
       time: item.ctime,
       nickname_color: item.member.vip.nickname_color
     }

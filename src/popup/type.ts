@@ -13,14 +13,26 @@ export interface IView {
   reply_total: number
   reply_cur: number
 }
-export interface IMatchInfo {
+
+interface IOriginalInfo {
+  message: string
+  emote: any
+  jump_url: {
+    [key: string]: { prefix_icon: string, title: string }
+  }
+  members: {
+    mid: string
+    uname: string
+  }[]
+}
+export interface IMatchInfo extends IOriginalInfo {
   uid: number
   uname: string
+  upper_uid: number
+  level: number
   avatar: string
   sex: string
   rpid: number
-  message: string
-  emote: any
   time: number
   nickname_color: string
 }
@@ -50,15 +62,15 @@ export interface IReplies {
   member: {
     uname: string
     avatar: string
+    level_info: {
+      current_level: number
+    }
     sex: string
     vip: {
       nickname_color: string
     }
   }
-  content: {
-    message: string
-    emote: any
-  }
+  content: IOriginalInfo
   count: number
   reply_control: {
     sub_reply_entry_text: string
