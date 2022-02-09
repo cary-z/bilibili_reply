@@ -6,6 +6,13 @@ interface IGetReplyPara {
   oid: string // 视频aid
   mode?: number // 模式 2 按时间排序 3 按热度排序
 }
+interface IReplyActionPara {
+  oid: string // 视频aid
+  type?: number // 1为视频，11为动态
+  rpid: number // 评论id
+  action: number // 0为取消 1为确定
+  csrf: string // csrf验证
+}
 export async function getReplyInfo(getReplyPara: IGetReplyPara) {
   return getReplyNewAPI(getReplyPara)
 }
@@ -72,4 +79,15 @@ export async function getTitleInfo(aid: string): Promise<string> {
   const url = `https://api.bilibili.com/x/web-interface/view?aid=${aid}`
   const { title } = (await axios.get(url) as any).data
   return title
+}
+
+export async function replyAction({ oid, type = 1, rpid, action, csrf }: IReplyActionPara) {
+  const data = `oid=${oid}&type=${type}&rpid=${rpid}&action=${action}&csrf=${csrf}`
+  const url = `https://api.bilibili.com/x/v2/reply/action`
+  const { code, message } = await axios.post(url, data, {
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+    }
+  }) as any
+  return { code, message }
 }

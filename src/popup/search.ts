@@ -1,10 +1,10 @@
 import { ref } from 'vue'
 import { ElMessage } from 'element-plus'
-import { getAidFormBVid, getEPFormEpId, getAidFormDyid, getTitleInfo } from '../api/reply'
+import { getAidFormBVid, getEPFormEpId, getAidFormDyid, getTitleInfo, replyAction } from '../api/reply'
 import { stringToRegexp } from '../libs/regexp'
 import { SleepMS } from '../libs/utils'
 import { handleResult } from './useinfo'
-import { IFilter, IView, IMatchInfo, IHandleResult } from './type'
+import { IFilter, IView, IMatchInfo, IHandleResult, EActionStatus, EStatus } from './type'
 
 const getInitInfo = () => {
   const bvid: string = window['bvid'] ?? /\/video\/(\w+)/.exec(window.location.pathname)?.[1] ?? ''
@@ -163,5 +163,21 @@ export const getReply = async () => {
   } catch (err) {
     ElMessage.error((err as Error).message)
     view.value.flag = false
+  }
+}
+
+export const ReplyAction = async (info: IMatchInfo) => {
+  const oid = await getOid()
+  const { action, rpid } = info
+  const csrf = /(?<=bili_jct=)\w+/.exec(document.cookie)?.[0]
+  if (!csrf) {
+    ElMessage.error('csrf不存在，可尝试重新登陆')
+    return
+  }
+  const { code, message } = await replyAction({ oid, rpid, action: action === EActionStatus.LIKE ? EStatus.CANCEL : EStatus.SURE, csrf })
+  if (code) {
+    ElMessage.error(message)
+  } else {
+    info.action = EActionStatus.LIKE ? EActionStatus.STATELESS : EActionStatus.LIKE
   }
 }

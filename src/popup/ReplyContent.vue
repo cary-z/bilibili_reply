@@ -39,7 +39,13 @@
               style="white-space: normal; word-break: break-all; overflow: hidden"
               class="message"
             >{{ item.message }}</p>
-            <div class="time">{{ formatTime(item.time) }}</div>
+            <div class="reply_bottom">
+              <span class="time">{{ formatTime(item.time) }}</span>
+              <span :class="`like ${item.action === 1 ? 'liked' : ''}`" @click="ReplyAction(item)">
+                <i></i>
+                <span></span>
+              </span>
+            </div>
           </div>
         </div>
       </template>
@@ -54,7 +60,7 @@
 
 <script lang="ts" setup>
 import Svg from './Svg.vue'
-import { view, matchInfo } from './search'
+import { view, matchInfo, ReplyAction } from './search'
 import { formatTime } from '../libs/utils'
 import { IMatchInfo } from './type'
 
@@ -137,8 +143,29 @@ const replaceReply = (matchInfo: IMatchInfo) => {
     font-size: 14px;
     padding: 5px 0;
   }
-  .time {
-    color: #99a2aa;
+  .reply_bottom {
+    & > span {
+      margin-right: 20px;
+    }
+    .time {
+      color: #99a2aa;
+    }
+    .like {
+      cursor: pointer;
+      &.liked {
+        background-position: -154px -89px;
+      }
+      i {
+        display: inline-block;
+        width: 14px;
+        height: 14px;
+        vertical-align: text-top;
+        margin-right: 5px;
+        background: url(https://s1.hdslb.com/bfs/seed/jinkela/commentpc/static/img/icons-comment.2f36fc5.png)
+          no-repeat;
+        background-position: -153px -25px;
+      }
+    }
   }
 }
 .stick_up {

@@ -28,6 +28,7 @@ interface IOriginalInfo {
 export interface IMatchInfo extends IOriginalInfo {
   uid: number
   uname: string
+  action: number
   upper_uid: number
   level: number
   avatar: string
@@ -35,6 +36,17 @@ export interface IMatchInfo extends IOriginalInfo {
   rpid: number
   time: number
   nickname_color: string
+}
+
+export enum EActionStatus {
+  STATELESS = 0, // 无状态
+  LIKE = 1, // 已点赞
+  HATE = 2 // 已点踩
+}
+
+export enum EStatus {
+  CANCEL = 0, // 取消
+  SURE = 1 // 确定
 }
 
 export interface ISendPara {
@@ -71,6 +83,7 @@ export interface IReplies {
     }
   }
   content: IOriginalInfo
+  action: number // 0为无状态 1为已点赞 2为已踩
   count: number
   reply_control: {
     sub_reply_entry_text: string

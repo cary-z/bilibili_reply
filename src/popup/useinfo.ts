@@ -24,6 +24,7 @@ export async function handleResult({ next, type, oid, mode, uid, regexp }: ISend
     const content: IMatchInfo = {
       uid: item.mid,
       uname: item.member.uname,
+      action: item.action,
       level: item.member.level_info.current_level,
       upper_uid: result.upper.mid,
       avatar: item.member.avatar,
