@@ -13,7 +13,7 @@ interface IResult {
 }
 
 export async function handleResult({ next, type, oid, mode, uid, regexp }: ISendPara) {
-  const result: IResult = await getReplyInfo({ next, type, oid, mode }).catch((err) => console.log(err))
+  const result: IResult = await getReplyInfo({ next, type, oid, mode })
   const info: IMatchInfo[] = []
   if (!result.replies) {
     return { flag: false }

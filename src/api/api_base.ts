@@ -20,14 +20,17 @@ const Axios = axios.create({
 //   }
 // )
 
-//返回状态判断(添加响应拦截器)
-// Axios.interceptors.response.use(
-//   (res) => {
-//     return res
-//   },
-//   (error) => {
-//     return error
-//   }
-// )
+// 返回状态判断(添加响应拦截器)
+Axios.interceptors.response.use(
+  (res) => {
+    if (res.data.code) {
+      throw new Error(res.data.message)
+    }
+    return res.data
+  },
+  (error) => {
+    throw new Error((error as Error).message)
+  }
+)
 
 export default Axios
