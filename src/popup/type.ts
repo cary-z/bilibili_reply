@@ -16,7 +16,13 @@ export interface IView {
 
 interface IOriginalInfo {
   message: string
-  emote: any
+  emote: {
+    [key:string]:{
+      meta: { size: number }
+      text: string
+      url: string
+    }
+  }
   jump_url: {
     [key: string]: { prefix_icon: string, title: string }
   }
@@ -29,6 +35,7 @@ export interface IMatchInfo extends IOriginalInfo {
   uid: number
   uname: string
   action: number
+  like: number
   upper_uid: number
   level: number
   avatar: string
@@ -70,7 +77,7 @@ export interface IHandleResult {
 }
 
 export interface IReplies {
-  mid: number
+  mid: number // uid
   member: {
     uname: string
     avatar: string
@@ -84,6 +91,7 @@ export interface IReplies {
   }
   content: IOriginalInfo
   action: number // 0为无状态 1为已点赞 2为已踩
+  like: number // 点赞数量
   count: number
   reply_control: {
     sub_reply_entry_text: string

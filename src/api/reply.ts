@@ -91,3 +91,14 @@ export async function replyAction({ oid, type = 1, rpid, action, csrf }: IReplyA
   }) as any
   return { code, message }
 }
+
+export async function replyHate({ oid, type = 1, rpid, action, csrf }: IReplyActionPara) {
+  const data = `oid=${oid}&type=${type}&rpid=${rpid}&action=${action}&csrf=${csrf}`
+  const url = `https://api.bilibili.com/x/v2/reply/hate`
+  const { code, message } = await axios.post(url, data, {
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+    }
+  }) as any
+  return { code, message }
+}

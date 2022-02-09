@@ -41,9 +41,12 @@
             >{{ item.message }}</p>
             <div class="reply_bottom">
               <span class="time">{{ formatTime(item.time) }}</span>
-              <span :class="`like ${item.action === 1 ? 'liked' : ''}`" @click="ReplyAction(item)">
+              <span :class="`like ${item.action === EActionStatus.LIKE ? 'liked' : ''}`" @click="ReplyAction(item)">
                 <i></i>
-                <span></span>
+                <span>{{item.like || ''}}</span>
+              </span>
+              <span :class="`hate ${item.action === EActionStatus.HATE ? 'hated' : ''}`" @click="ReplyHate(item)">
+                <i></i>
               </span>
             </div>
           </div>
@@ -60,9 +63,9 @@
 
 <script lang="ts" setup>
 import Svg from './Svg.vue'
-import { view, matchInfo, ReplyAction } from './search'
+import { view, matchInfo, ReplyAction, ReplyHate } from './search'
 import { formatTime } from '../libs/utils'
-import { IMatchInfo } from './type'
+import { IMatchInfo, EActionStatus } from './type'
 
 const regexp = /\d+((：|:)\d+){1,2}/
 const checkReplace = (matchInfo: IMatchInfo) => {
@@ -77,12 +80,13 @@ const replaceReply = (matchInfo: IMatchInfo) => {
   if (emote) {
     for (const emoteKey in emote) {
       const item = emote[emoteKey]
+      const className = item.meta.size === 1 ? 'small' : 'middle'
       str = str.replace(
         new RegExp(item.text.replace(/(\[|\])/g, '\\$1'), 'g'),
-        `<img style="width:20px;height:20px;vertical-align:text-bottom;" src="${item.url.replace(
+        `<img src="${item.url.replace(
           'http:',
           ''
-        )}@100w_100h.webp" class="small" alt="${item.text}">`
+        )}@100w_100h.webp" class="${className}" alt="${item.text}">`
       )
     }
   }
@@ -144,15 +148,17 @@ const replaceReply = (matchInfo: IMatchInfo) => {
     padding: 5px 0;
   }
   .reply_bottom {
+    color: #99a2aa;
     & > span {
       margin-right: 20px;
     }
-    .time {
-      color: #99a2aa;
-    }
     .like {
       cursor: pointer;
-      &.liked {
+      vertical-align: middle;
+      &:hover i {
+        background-position: -218px -25px;
+      }
+      &.liked i {
         background-position: -154px -89px;
       }
       i {
@@ -166,6 +172,37 @@ const replaceReply = (matchInfo: IMatchInfo) => {
         background-position: -153px -25px;
       }
     }
+    .hate {
+      cursor: pointer;
+      vertical-align: middle;
+      &:hover i {
+        background-position: -217px -153px;
+      }
+      &.hated i {
+        background-position: -154px -217px;
+      }
+      i {
+        display: inline-block;
+        width: 14px;
+        height: 14px;
+        vertical-align: text-top;
+        margin-right: 5px;
+        background: url(https://s1.hdslb.com/bfs/seed/jinkela/commentpc/static/img/icons-comment.2f36fc5.png)
+          no-repeat;
+        background-position: -153px -153px;
+      }
+    }
+  }
+  & ::v-deep(.small) {
+    width:20px;
+    height:20px;
+    vertical-align:text-bottom;
+  }
+  & ::v-deep(.middle) {
+    padding: 0 1px;
+    width: 50px;
+    height: 50px;
+    vertical-align: text-bottom;
   }
 }
 .stick_up {

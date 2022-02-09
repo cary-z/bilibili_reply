@@ -25,6 +25,7 @@ export async function handleResult({ next, type, oid, mode, uid, regexp }: ISend
       uid: item.mid,
       uname: item.member.uname,
       action: item.action,
+      like: item.like,
       level: item.member.level_info.current_level,
       upper_uid: result.upper.mid,
       avatar: item.member.avatar,

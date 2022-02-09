@@ -1,6 +1,6 @@
 import { ref } from 'vue'
 import { ElMessage } from 'element-plus'
-import { getAidFormBVid, getEPFormEpId, getAidFormDyid, getTitleInfo, replyAction } from '../api/reply'
+import { getAidFormBVid, getEPFormEpId, getAidFormDyid, getTitleInfo, replyAction, replyHate } from '../api/reply'
 import { stringToRegexp } from '../libs/regexp'
 import { SleepMS } from '../libs/utils'
 import { handleResult } from './useinfo'
@@ -168,7 +168,7 @@ export const getReply = async () => {
 
 export const ReplyAction = async (info: IMatchInfo) => {
   const oid = await getOid()
-  const { action, rpid } = info
+  const { action, like, rpid } = info
   const csrf = /(?<=bili_jct=)\w+/.exec(document.cookie)?.[0]
   if (!csrf) {
     ElMessage.error('csrf不存在，可尝试重新登陆')
@@ -178,6 +178,28 @@ export const ReplyAction = async (info: IMatchInfo) => {
   if (code) {
     ElMessage.error(message)
   } else {
-    info.action = EActionStatus.LIKE ? EActionStatus.STATELESS : EActionStatus.LIKE
+    const action_flag = action === EActionStatus.LIKE
+    info.action = action_flag ? EActionStatus.STATELESS : EActionStatus.LIKE
+    info.like = action_flag ? like - 1 : like + 1
+    ElMessage.success(action_flag ? '取消点赞' : '点赞成功')
+  }
+}
+
+export const ReplyHate = async (info: IMatchInfo) => {
+  const oid = await getOid()
+  const { action, rpid } = info
+  const csrf = /(?<=bili_jct=)\w+/.exec(document.cookie)?.[0]
+  if (!csrf) {
+    ElMessage.error('csrf不存在，可尝试重新登陆')
+    return
+  }
+  const { code, message } = await replyHate({ oid, rpid, action: action === EActionStatus.HATE ? EStatus.CANCEL : EStatus.SURE, csrf })
+  if (code) {
+    ElMessage.error(message)
+  } else {
+    const action_flag = action === EActionStatus.HATE
+    info.action = action_flag ? EActionStatus.STATELESS : EActionStatus.HATE
+    if (action === EActionStatus.LIKE && !action_flag) info.like--
+    ElMessage.success(action_flag ? '取消点踩' : '点踩成功')
   }
 }
