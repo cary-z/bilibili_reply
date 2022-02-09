@@ -53,6 +53,7 @@
     </el-form>
     <div class="search_button">
       <el-button type="primary" :loading="view.flag" @click="getReply">搜索</el-button>
+      <el-button type="primary" :loading="view.flag" @click="searchSchedule">搜索课代表</el-button>
       <el-button type="danger" @click="stopGetReply">停止搜索</el-button>
     </div>
   </div>
@@ -63,6 +64,11 @@ import { filter, view, title, getReply } from './search'
 import { watchEffect } from 'vue'
 const stopGetReply = () => {
   view.value.flag = false
+}
+const searchSchedule = () => {
+  filter.value.searchMode = true
+  filter.value.keyword = '/\\d+(:|：)\\d+/'
+  getReply()
 }
 const limitInput = (event: string) => {
   if (Number(event) || ['', '*'].includes(event)) {

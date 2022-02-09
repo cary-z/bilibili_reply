@@ -153,7 +153,6 @@ export const getReply = async () => {
         }
       } else {
         view.value.reply_cur = view.value.reply_total
-        console.log('未搜索到')
         break
       }
       await SleepMS(500)

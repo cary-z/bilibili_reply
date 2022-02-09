@@ -1,12 +1,12 @@
 export interface IFilter {
-  bvid: string
-  epid: string
-  dyid: string
-  keyword: string
-  uid: string
-  num: string
-  searchMode: boolean
-  mode: number
+  bvid: string // BV号
+  epid: string // 番剧号
+  dyid: string // 动态号
+  keyword: string // 关键词
+  uid: string // b站用户id
+  num: string // 限制数量
+  searchMode: boolean // 模式（关键词或者正则）
+  mode: number // 模式（热度或者时间）
 }
 export interface IView {
   flag: boolean
