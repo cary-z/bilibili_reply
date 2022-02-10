@@ -6,7 +6,7 @@ export interface IFilter {
   uid: string // b站用户id
   num: string // 限制数量
   searchMode: boolean // 模式（关键词或者正则）
-  mode: number // 模式（热度或者时间）
+  mode: ESortMode // 模式（热度或者时间）
 }
 export interface IView {
   flag: boolean
@@ -17,14 +17,14 @@ export interface IView {
 interface IOriginalInfo {
   message: string
   emote: {
-    [key:string]:{
+    [key: string]: {
       meta: { size: number }
       text: string
       url: string
     }
   }
   jump_url: {
-    [key: string]: { prefix_icon: string, title: string }
+    [key: string]: { prefix_icon: string; title: string }
   }
   members: {
     mid: string
@@ -45,6 +45,16 @@ export interface IMatchInfo extends IOriginalInfo {
   nickname_color: string
 }
 
+export enum EVideoType {
+  VIDEO = 1, // 视频
+  DYNAMIC = 11 // 动态
+}
+
+export enum ESortMode {
+  TIME = 2, // 时间
+  HEAT = 3 // 热度
+}
+
 export enum EActionStatus {
   STATELESS = 0, // 无状态
   LIKE = 1, // 已点赞
@@ -58,9 +68,9 @@ export enum EStatus {
 
 export interface ISendPara {
   next: number
-  type?: number
+  type?: EVideoType
   oid: string
-  mode?: number
+  mode?: ESortMode
   uid: string
   regexp: RegExp | null
 }

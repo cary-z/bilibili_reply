@@ -1,14 +1,15 @@
 import axios from './api_base'
+import { EVideoType } from '../popup/type'
 
 interface IGetReplyPara {
   next?: number // 下个索引
-  type?: number // 1为视频，11为动态
+  type?: EVideoType // 1为视频，11为动态
   oid: string // 视频aid
   mode?: number // 模式 2 按时间排序 3 按热度排序
 }
 interface IReplyActionPara {
   oid: string // 视频aid
-  type?: number // 1为视频，11为动态
+  type?: EVideoType // 1为视频，11为动态
   rpid: number // 评论id
   action: number // 0为取消 1为确定
   csrf: string // csrf验证
@@ -17,7 +18,7 @@ export async function getReplyInfo(getReplyPara: IGetReplyPara) {
   return getReplyNewAPI(getReplyPara)
 }
 
-async function getReplyNewAPI({ next = 0, type = 1, oid, mode = 3 }: IGetReplyPara) {
+async function getReplyNewAPI({ next = 0, type = EVideoType.VIDEO, oid, mode = 3 }: IGetReplyPara) {
   return axios
     .get('https://api.bilibili.com/x/v2/reply/main', {
       params: {
@@ -29,7 +30,7 @@ async function getReplyNewAPI({ next = 0, type = 1, oid, mode = 3 }: IGetReplyPa
         plat: 1
       }
     })
-    .then(data => data.data)
+    .then((data) => data.data)
 }
 
 // async function getReplyOldAPI({ next = 0, type = 1, oid, mode = 3 }: IGetReplyPara) {
@@ -55,9 +56,9 @@ async function getReplyNewAPI({ next = 0, type = 1, oid, mode = 3 }: IGetReplyPa
 
 export async function getAidFormBVid(bvid: string) {
   const url1 = `https://api.bilibili.com/x/player/pagelist?bvid=${bvid}`
-  const [{ cid }] = (await axios.get(url1) as any).data
+  const [{ cid }] = ((await axios.get(url1)) as any).data
   const url2 = `https://api.bilibili.com/x/player/v2?cid=${cid}&bvid=${bvid}`
-  const { aid }: { aid: string } = (await axios.get(url2) as any).data
+  const { aid }: { aid: string } = ((await axios.get(url2)) as any).data
   return aid
 }
 
@@ -77,28 +78,28 @@ export async function getAidFormDyid(dyid: string) {
 
 export async function getTitleInfo(aid: string): Promise<string> {
   const url = `https://api.bilibili.com/x/web-interface/view?aid=${aid}`
-  const { title } = (await axios.get(url) as any).data
+  const { title } = ((await axios.get(url)) as any).data
   return title
 }
 
 export async function replyAction({ oid, type = 1, rpid, action, csrf }: IReplyActionPara) {
   const data = `oid=${oid}&type=${type}&rpid=${rpid}&action=${action}&csrf=${csrf}`
   const url = `https://api.bilibili.com/x/v2/reply/action`
-  const { code, message } = await axios.post(url, data, {
+  const { code, message } = (await axios.post(url, data, {
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
     }
-  }) as any
+  })) as any
   return { code, message }
 }
 
 export async function replyHate({ oid, type = 1, rpid, action, csrf }: IReplyActionPara) {
   const data = `oid=${oid}&type=${type}&rpid=${rpid}&action=${action}&csrf=${csrf}`
   const url = `https://api.bilibili.com/x/v2/reply/hate`
-  const { code, message } = await axios.post(url, data, {
+  const { code, message } = (await axios.post(url, data, {
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
     }
-  }) as any
+  })) as any
   return { code, message }
 }

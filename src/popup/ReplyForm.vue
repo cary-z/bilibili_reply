@@ -35,8 +35,8 @@
         </el-col>
         <el-col :span="6">
           <el-select v-model="filter.mode" placeholder="选择排序模式" size="large" clearable>
-            <el-option label="热度排序" :value="3"></el-option>
-            <el-option label="时间排序" :value="2"></el-option>
+            <el-option label="热度排序" :value="ESortMode.HEAT"></el-option>
+            <el-option label="时间排序" :value="ESortMode.TIME"></el-option>
           </el-select>
         </el-col>
       </el-row>
@@ -61,8 +61,9 @@
 </template>
 
 <script lang="ts" setup>
-import { filter, view, title, getReply } from './search'
 import { watchEffect } from 'vue'
+import { filter, view, title, getReply } from './search'
+import { ESortMode } from './type'
 const stopGetReply = () => {
   view.value.flag = false
 }

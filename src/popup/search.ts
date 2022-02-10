@@ -4,7 +4,7 @@ import { getAidFormBVid, getEPFormEpId, getAidFormDyid, getTitleInfo, replyActio
 import { stringToRegexp } from '../libs/regexp'
 import { SleepMS } from '../libs/utils'
 import { handleResult } from './useinfo'
-import { IFilter, IView, IMatchInfo, IHandleResult, EActionStatus, EStatus } from './type'
+import { IFilter, IView, IMatchInfo, IHandleResult, EActionStatus, EStatus, EVideoType, ESortMode } from './type'
 
 const getInitInfo = () => {
   const bvid: string = window['bvid'] ?? /\/video\/(\w+)/.exec(window.location.pathname)?.[1] ?? ''
@@ -16,7 +16,7 @@ const getInitInfo = () => {
 const { bvid, epid, dyid } = getInitInfo()
 const storage_filter = localStorage.getItem('REPLY_FILTER')
 const reply_filter: IFilter =
-  ((bvid || epid || dyid) && { bvid, epid, dyid, num: '1', searchMode: false, mode: 3 }) ||
+  ((bvid || epid || dyid) && { bvid, epid, dyid, num: '1', searchMode: false, mode: ESortMode.HEAT }) ||
   (storage_filter && JSON.parse(storage_filter))
 export const filter = ref(reply_filter)
 const clearFilter = () => {
@@ -28,7 +28,7 @@ const clearFilter = () => {
     uid: '', // b站用户id
     num: '1', // 限制数量
     searchMode: false, // 模式（关键词或者正则）
-    mode: 3 // 模式（热度或者时间）
+    mode: ESortMode.HEAT // 模式（热度或者时间）
   }
 }
 !filter.value && clearFilter()
@@ -134,7 +134,14 @@ export const getReply = async () => {
     for (let i = 0; ; i++) {
       if (!view.value.flag) break
       console.time(`第${i + 1}个发包`)
-      const result = await handleResult({ next, type: dyid ? 11 : 1, oid, mode, uid, regexp })
+      const result = await handleResult({
+        next,
+        type: dyid ? EVideoType.DYNAMIC : EVideoType.VIDEO,
+        oid,
+        mode,
+        uid,
+        regexp
+      })
       console.timeEnd(`第${i + 1}个发包`)
       if (result.flag) {
         length += (result as IHandleResult).extraInfo.rp_num
@@ -176,7 +183,13 @@ export const ReplyAction = async (info: IMatchInfo) => {
       ElMessage.error('csrf不存在，可尝试重新登陆')
       return
     }
-    const { code, message } = await replyAction({ oid, type: dyid ? 11 : 1, rpid, action: action === EActionStatus.LIKE ? EStatus.CANCEL : EStatus.SURE, csrf })
+    const { code, message } = await replyAction({
+      oid,
+      type: dyid ? EVideoType.DYNAMIC : EVideoType.VIDEO,
+      rpid,
+      action: action === EActionStatus.LIKE ? EStatus.CANCEL : EStatus.SURE,
+      csrf
+    })
     if (code) {
       ElMessage.error(message)
     } else {
@@ -200,7 +213,13 @@ export const ReplyHate = async (info: IMatchInfo) => {
       ElMessage.error('csrf不存在，可尝试重新登陆')
       return
     }
-    const { code, message } = await replyHate({ oid, type: dyid ? 11 : 1, rpid, action: action === EActionStatus.HATE ? EStatus.CANCEL : EStatus.SURE, csrf })
+    const { code, message } = await replyHate({
+      oid,
+      type: dyid ? EVideoType.DYNAMIC : EVideoType.VIDEO,
+      rpid,
+      action: action === EActionStatus.HATE ? EStatus.CANCEL : EStatus.SURE,
+      csrf
+    })
     if (code) {
       ElMessage.error(message)
     } else {

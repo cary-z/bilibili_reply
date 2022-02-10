@@ -1,5 +1,5 @@
 import { getReplyInfo } from '../api/reply'
-import { IMatchInfo, ISendPara, IReplies } from './type'
+import { IMatchInfo, ISendPara, IReplies, ESortMode } from './type'
 
 interface IResult {
   replies: IReplies[]
@@ -19,7 +19,8 @@ export async function handleResult({ next, type, oid, mode, uid, regexp }: ISend
     return { flag: false }
   }
   let rp_num = 0
-  const all_replies = next ? result.replies : (result.top_replies ?? []).concat(result.replies)
+  const all_replies =
+    next || mode === ESortMode.TIME ? result.replies : (result.top_replies ?? []).concat(result.replies)
   all_replies.forEach((item) => {
     const content: IMatchInfo = {
       uid: item.mid,
