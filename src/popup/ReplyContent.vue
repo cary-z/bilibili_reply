@@ -86,7 +86,7 @@ const replaceReply = (matchInfo: IMatchInfo) => {
         `<img src="${item.url.replace(
           'http:',
           ''
-        )}@100w_100h.webp" class="${className}" alt="${item.text}">`
+        ).replace(/@.*/,'')}@100w_100h.webp" class="${className}" alt="${item.text}">`
       )
     }
   }
