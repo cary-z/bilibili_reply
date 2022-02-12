@@ -5,18 +5,18 @@
       <el-row :gutter="10">
         <el-col :span="12">
           <el-form-item v-if="filter.epid" label="EP号">
-            <el-input placeholder="请输入EP号" v-model="filter.epid" clearable></el-input>
+            <el-input placeholder="请输入EP号" v-model="filter.epid" clearable @keyup.enter="getReply"></el-input>
           </el-form-item>
           <el-form-item v-if="filter.dyid" label="DY号">
-            <el-input placeholder="请输入DY号" v-model="filter.dyid" clearable></el-input>
+            <el-input placeholder="请输入DY号" v-model="filter.dyid" clearable @keyup.enter="getReply"></el-input>
           </el-form-item>
-          <el-form-item v-else label="BV号">
-            <el-input placeholder="请输入BV号" v-model="filter.bvid" clearable></el-input>
+          <el-form-item v-if="filter.bvid" label="BV号">
+            <el-input placeholder="请输入BV号" v-model="filter.bvid" clearable @keyup.enter="getReply"></el-input>
           </el-form-item>
         </el-col>
         <el-col :span="12">
           <el-form-item label="uid">
-            <el-input placeholder="请输入uid" v-model="filter.uid" clearable></el-input>
+            <el-input placeholder="请输入uid" v-model="filter.uid" clearable @keyup.enter="getReply"></el-input>
           </el-form-item>
         </el-col>
       </el-row>
@@ -26,6 +26,7 @@
             <el-input
               :placeholder="'请输入' + (filter.searchMode ? '正则表达式' : '关键词')"
               v-model="filter.keyword"
+              @keyup.enter="getReply"
               clearable
             ></el-input>
           </el-form-item>
@@ -43,7 +44,7 @@
       <el-row :gutter="10">
         <el-col :span="12">
           <el-form-item label="数量">
-            <el-input placeholder="请输入数量" :model-value="filter.num" @input="limitInput" clearable></el-input>
+            <el-input placeholder="请输入数量" :model-value="filter.num" @input="limitInput" clearable @keyup.enter="getReply"></el-input>
           </el-form-item>
         </el-col>
         <el-col :span="12">
