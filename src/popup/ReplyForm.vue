@@ -10,7 +10,7 @@
           <el-form-item v-if="filter.dyid" label="DY号">
             <el-input placeholder="请输入DY号" v-model="filter.dyid" clearable @keyup.enter="getReply"></el-input>
           </el-form-item>
-          <el-form-item v-if="filter.bvid" label="BV号">
+          <el-form-item label="BV号">
             <el-input placeholder="请输入BV号" v-model="filter.bvid" clearable @keyup.enter="getReply"></el-input>
           </el-form-item>
         </el-col>

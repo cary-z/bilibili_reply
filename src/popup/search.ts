@@ -47,7 +47,9 @@ const getTitle = async () => {
       if (epid == getInitInfo().epid) title.value = window?.['ep']?.share_copy
       else title.value = (await getEPFormEpId(epid)).share_copy
     } else if (bvid) {
-      if (bvid == getInitInfo().bvid) title.value = await getTitleInfo(window['aid'])
+      if (bvid == getInitInfo().bvid && window['aid']) {
+        title.value = await getTitleInfo(window['aid'])
+      }
       else {
         const aid = await getAidFormBVid(bvid)
         title.value = await getTitleInfo(aid)
