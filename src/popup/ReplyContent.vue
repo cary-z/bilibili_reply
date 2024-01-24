@@ -100,7 +100,7 @@ const replaceReply = (matchInfo: IMatchInfo) => {
           Number(arr[arr.length - 2]) * 60 +
           (Number(arr?.[arr.length - 3]) * 3600 || 0) +
           ''
-        return `<a class="video-seek" onclick="document.querySelector('.bilibili-player-video video').currentTime = this.dataset.time;" data-p="-1" data-time="${data_time}">${match}</a>`
+        return `<a class="jump-link video-time" onclick="document.querySelector('.bpx-player-video-wrap video').currentTime = this.dataset.time;" data-p="-1" data-time="${data_time}">${match}</a>`
       } else {
         return match
       }
@@ -111,10 +111,17 @@ const replaceReply = (matchInfo: IMatchInfo) => {
     let index = 0
     for (const url in jump_url) {
       const item = jump_url[url]
-      str = str.replace(new RegExp(url, 'g'), `
-        <img style="width: 20px;height: 20px;" src="${item.prefix_icon}" class="jump-img">
-        <a style="vertical-align: middle;" href="//www.bilibili.com/video/${url}" data-report="${index++}" class="comment-jump-url" target="_blank">${item.title}</a>
-      `)
+      if (item.pc_url) {
+        str = str.replace(url, `
+          <a href="${item.pc_url}" data-report="${index++}" class="comment-jump-url" target="_blank">${item.title}</a>
+          <img style="height: 20px;" src="${item.prefix_icon}" class="jump-img">
+        `)
+      } else {
+        str = str.replace(url, `
+          <img style="height: 20px;" src="${item.prefix_icon}" class="jump-img">
+          <a style="vertical-align: middle;" href="${url}" data-report="${index++}" class="comment-jump-url" target="_blank">${item.title}</a>
+        `)
+      }
     }
   }
   // 处理@用户

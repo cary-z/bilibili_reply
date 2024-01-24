@@ -24,7 +24,7 @@ interface IOriginalInfo {
     }
   }
   jump_url: {
-    [key: string]: { prefix_icon: string; title: string }
+    [key: string]: { prefix_icon: string; title: string, pc_url: string }
   }
   members: {
     mid: string
