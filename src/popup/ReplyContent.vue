@@ -72,7 +72,7 @@ const checkReplace = (matchInfo: IMatchInfo) => {
   return /\n/.test(matchInfo.message) || matchInfo.emote || regexp.test(matchInfo.message) || matchInfo.jump_url || matchInfo.members
 }
 const replaceReply = (matchInfo: IMatchInfo) => {
-  const { message, emote, jump_url, members } = matchInfo
+  const { message, emote, jump_url, members, pictures } = matchInfo
   let str = message
   // 处理换行
   if (/\n/.test(message)) str = str.replace(/\n/g, '<br>')
@@ -133,6 +133,19 @@ const replaceReply = (matchInfo: IMatchInfo) => {
       const index = nameArr.findIndex(item => match.slice(1) === item)
       return `<a href="//space.bilibili.com/${members[index].mid}" target="_blank" data-usercard-mid="${members[index].mid}">${match} </a>`
     })
+  }
+  // 处理笔记的图片
+  if (pictures && pictures.length > 0) {
+    const imgStr = pictures.map(picture => (`
+      <div class="image-item-wrap vertical" style="width: 88px; height: 88px;">
+        <img src="${picture.img_src}@88w_88h_1c_1s_!web-comment-note.avif" alt="image">
+      </div>
+    `)).join('');
+    str += `
+    <div id="bilibili-reply__note-picture" class="preview-image-container">
+      ${imgStr}
+    </div>
+    `;
   }
   return str
 }
@@ -244,5 +257,21 @@ const replaceReply = (matchInfo: IMatchInfo) => {
   justify-content: center;
   align-items: center;
   font-size: 20px;
+}
+</style>
+<style lang="scss">
+#bilibili-reply__note-picture.preview-image-container {
+  display: flex;
+  flex-wrap: wrap;
+  max-width: 364px;
+  row-gap: 4px;
+  column-gap: 4px;
+  padding: 5px 0;
+  .image-item-wrap {
+    flex-direction: column;
+    img {
+      border-radius: 6px
+    }
+  }
 }
 </style>

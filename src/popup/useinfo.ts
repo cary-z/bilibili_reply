@@ -37,7 +37,8 @@ export async function handleResult({ next, type, oid, mode, uid, regexp }: ISend
       jump_url: item.content.jump_url,
       members: item.content.members,
       time: item.ctime,
-      nickname_color: item.member.vip.nickname_color
+      nickname_color: item.member.vip.nickname_color,
+      pictures: item.content.pictures
     }
     rp_num += Number(item.reply_control?.sub_reply_entry_text?.replace(/共(\d+)条回复/, '$1') || 0) + 1
     // rp_num += item.count || 1

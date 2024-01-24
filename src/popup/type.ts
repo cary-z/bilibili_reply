@@ -30,6 +30,12 @@ interface IOriginalInfo {
     mid: string
     uname: string
   }[]
+  pictures: {
+    img_src: string
+    img_width: number
+    img_height: number
+    img_size: number
+  }[]
 }
 export interface IMatchInfo extends IOriginalInfo {
   uid: number
