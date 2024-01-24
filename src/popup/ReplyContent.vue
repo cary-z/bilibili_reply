@@ -106,17 +106,19 @@ const replaceReply = (matchInfo: IMatchInfo) => {
       }
     })
   }
-  // 处理视频链接
+  // 处理链接
   if (Object.keys(jump_url).length > 0) {
     let index = 0
     for (const url in jump_url) {
       const item = jump_url[url]
+      // 关键词链接
       if (item.pc_url) {
         str = str.replace(url, `
           <a href="${item.pc_url}" data-report="${index++}" class="comment-jump-url" target="_blank">${item.title}</a>
-          <img style="height: 20px;" src="${item.prefix_icon}" class="jump-img">
+          <i class="icon search-word" style="width: 12px;height: 20px;vertical-align: text-top;background-size: contain;background-image: url(${item.prefix_icon})"></i>
         `)
       } else {
+        // 普通视频链接
         str = str.replace(url, `
           <img style="height: 20px;" src="${item.prefix_icon}" class="jump-img">
           <a style="vertical-align: middle;" href="${url}" data-report="${index++}" class="comment-jump-url" target="_blank">${item.title}</a>
