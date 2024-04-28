@@ -45,6 +45,8 @@ app.id = 'insetApp'
 app.style.height = '100vh'
 app.style.backgroundColor = '#fff'
 app.style.overflowY = 'scroll'
+// 设置阴影，让分隔更明显
+app.style.boxShadow = '0 10px 10px -5px rgba(0, 0, 0)'
 
 div.append(button)
 div.append(app)
