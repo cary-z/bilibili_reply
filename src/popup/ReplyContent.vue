@@ -62,7 +62,10 @@
 </template>
 
 <script lang="ts" setup>
+import { nextTick } from 'vue';
 import Svg from './Svg.vue'
+import Viewer from 'viewerjs';
+import 'viewerjs/dist/viewer.css';
 import { view, matchInfo, ReplyAction, ReplyHate } from './search'
 import { formatTime } from '../libs/utils'
 import { IMatchInfo, EActionStatus } from './type'
@@ -137,16 +140,30 @@ const replaceReply = (matchInfo: IMatchInfo) => {
   // 处理笔记的图片
   if (pictures && pictures.length > 0) {
     const imgStr = pictures.map(picture => (`
-      <div class="image-item-wrap vertical" style="width: 88px; height: 88px;">
+      <li class="image-item-wrap vertical" style="width: 88px; height: 88px;">
         <img src="${picture.img_src}@88w_88h_1c_1s_!web-comment-note.avif" alt="image">
-      </div>
+      </li>
     `)).join('');
     str += `
-    <div id="bilibili-reply__note-picture" class="preview-image-container">
+    <ul id="bilibili-reply__note-picture" class="preview-image-container">
       ${imgStr}
-    </div>
+    </ul>
     `;
   }
+  nextTick(() => {
+    // 给图片绑定点击事件
+    const imageElements = document.querySelectorAll('.preview-image-container');
+    imageElements.forEach(function(element) {
+      new Viewer(element as HTMLElement, {
+        url(image) {
+          return image.src.replace('@88w_88h_1c_1s_!web-comment-note.avif', '@!web-comment-note.avif');
+        },
+        title: false,
+        rotatable: false,
+        scalable: false,
+      })
+    });
+  })
   return str
 }
 </script>
@@ -270,7 +287,8 @@ const replaceReply = (matchInfo: IMatchInfo) => {
   .image-item-wrap {
     flex-direction: column;
     img {
-      border-radius: 6px
+      cursor: pointer;
+      border-radius: 6px;
     }
   }
 }
