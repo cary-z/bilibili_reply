@@ -1,6 +1,6 @@
 {
   "name": "bilibili_reply",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "scripts": {
     "tsc": "vue-tsc --noEmit",
     "build": "vite build",

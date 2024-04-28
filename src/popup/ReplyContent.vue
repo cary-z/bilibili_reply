@@ -152,7 +152,7 @@ const replaceReply = (matchInfo: IMatchInfo) => {
   }
   nextTick(() => {
     // 给图片绑定点击事件
-    const imageElements = document.querySelectorAll('.preview-image-container');
+    const imageElements = document.querySelectorAll('#bilibili-reply__note-picture');
     imageElements.forEach(function(element) {
       new Viewer(element as HTMLElement, {
         url(image) {
