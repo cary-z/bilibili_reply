@@ -12,7 +12,7 @@ interface IResult {
   }
 }
 
-export async function handleResult({ next, type, oid, mode, uid, regexp }: ISendPara) {
+export async function handleResult({ next, type, oid, mode, uid, pictures, regexp }: ISendPara) {
   const result: IResult = await getReplyInfo({ next, type, oid, mode })
   const info: IMatchInfo[] = []
   if (!result.replies) {
@@ -42,12 +42,25 @@ export async function handleResult({ next, type, oid, mode, uid, regexp }: ISend
     }
     rp_num += Number(item.reply_control?.sub_reply_entry_text?.replace(/共(\d+)条回复/, '$1') || 0) + 1
     // rp_num += item.count || 1
-    if (uid && Number(uid) === item.mid) {
-      if (regexp) regexp.test(content.message) && info.push(content)
-      else info.push(content)
+    const matchUser = uid && Number(uid) === item.mid
+    const hasPictures = content.pictures && content.pictures.length > 0
+    const matchRegexp = regexp?.test(content.message)
+    const matchRegexpFn = () => {
+      regexp && matchRegexp && info.push(content)
+      !regexp && info.push(content)
     }
-    if (!uid) {
-      if (regexp?.test(content.message)) info.push(content)
+    if (matchUser) {
+      if (pictures) {
+        hasPictures && matchRegexpFn()
+      } else {
+        matchRegexpFn()
+      }
+    } else if (!uid) {
+      if (pictures) {
+        hasPictures && matchRegexpFn()
+      } else {
+        matchRegexpFn()
+      }
     }
     return content
   })

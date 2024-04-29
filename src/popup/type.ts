@@ -5,6 +5,7 @@ export interface IFilter {
   keyword: string // 关键词
   uid: string // b站用户id
   num: string // 限制数量
+  pictures: boolean // 是否搜索笔记
   searchMode: boolean // 模式（关键词或者正则）
   mode: ESortMode // 模式（热度或者时间）
 }
@@ -78,6 +79,7 @@ export interface ISendPara {
   oid: string
   mode?: ESortMode
   uid: string
+  pictures: boolean
   regexp: RegExp | null
 }
 

@@ -16,7 +16,7 @@ const getInitInfo = () => {
 const { bvid, epid, dyid } = getInitInfo()
 const storage_filter = localStorage.getItem('REPLY_FILTER')
 const reply_filter: IFilter =
-  ((bvid || epid || dyid) && { bvid, epid, dyid, num: '1', searchMode: false, mode: ESortMode.HEAT }) ||
+  ((bvid || epid || dyid) && { bvid, epid, dyid, num: '1', pictures: false, searchMode: false, mode: ESortMode.HEAT }) ||
   (storage_filter && JSON.parse(storage_filter))
 export const filter = ref(reply_filter)
 const clearFilter = () => {
@@ -27,6 +27,7 @@ const clearFilter = () => {
     keyword: '', // 关键词
     uid: '', // b站用户id
     num: '1', // 限制数量
+    pictures: false,
     searchMode: false, // 模式（关键词或者正则）
     mode: ESortMode.HEAT // 模式（热度或者时间）
   }
@@ -129,7 +130,7 @@ export const getReply = async () => {
     const regexp = getRegexp()
     clearInfo()
     await SleepMS(200)
-    const { dyid, uid, num, mode } = filter.value
+    const { dyid, uid, num, mode, pictures } = filter.value
     const oid = await getOid()
     let length = 0
     let next = 0
@@ -142,7 +143,8 @@ export const getReply = async () => {
         oid,
         mode,
         uid,
-        regexp
+        pictures,
+        regexp,
       })
       console.timeEnd(`第${i + 1}个发包`)
       if (result.flag) {
