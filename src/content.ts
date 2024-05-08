@@ -59,11 +59,11 @@ cssPath.forEach((item: string) => {
   const link = document.createElement('link')
   link.setAttribute('rel', 'stylesheet')
   link.setAttribute('type', 'text/css')
-  link.setAttribute('href', chrome.extension.getURL(item))
+  link.setAttribute('href', chrome.runtime.getURL(item))
   document.body.append(link)
 })
 
 const script = document.createElement('script')
 script.setAttribute('type', 'module')
-script.src = chrome.extension.getURL('main.js')
+script.src = chrome.runtime.getURL('main.js')
 document.body.append(script)

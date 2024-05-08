@@ -92,12 +92,18 @@ const getRegexp = () => {
   let regexp: RegExp | null
   if (searchMode) {
     try {
-      regexp = eval(keyword)
+      regexp = new RegExp(keyword)
+      const match = keyword.match(new RegExp("^/(.*?)/([gimuy]*)$"));
+      if (match) {
+        const corePattern = match[1];
+        const flags = match[2];
+        regexp = new RegExp(corePattern, flags);
+        console.log(regexp)
+      } else {
+        throw new Error()
+      }
     } catch (err) {
       throw new Error('正则表达式有误')
-    }
-    if (Object.prototype.toString.call(regexp) !== '[object RegExp]') {
-      throw new Error('输入非正则表达式')
     }
   } else {
     regexp = keyword ? stringToRegexp(keyword) : null
