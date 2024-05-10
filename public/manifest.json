@@ -1,8 +1,8 @@
 {
     "manifest_version": 3,
-    "name": "get_bilibili_reply",
+    "name": "bilibili-B站评论搜索助手",
     "description": "chrome extension",
-    "version": "1.2.0",
+    "version": "1.3.0",
     "host_permissions": [
         "*://*.bilibili.com/*"
     ],
@@ -10,7 +10,13 @@
         "service_worker": "background.js"
     },
     "action": {
+        "default_icon": "bilibili.png",
         "default_popup": "src/popup/index.html"
+    },
+    "icons": {
+        "16": "bilibili.png",
+        "48": "bilibili.png",
+        "128": "bilibili.png"
     },
     "content_scripts": 
 	[
@@ -28,7 +34,7 @@
         "extension_pages": "script-src 'self'; object-src 'self'; script-src-elem 'self'"
     },
     "web_accessible_resources": [{
-        "resources": ["main.js","vendor.js","App.js","vendor.css","App.css"],
+        "resources": ["main.js","vendor.js","App.js","vendor.css","App.css","bilibili.png"],
         "matches": ["<all_urls>"]
     }]
 }
