@@ -28,6 +28,7 @@
             <span v-if="item.upper_uid === item.uid" class="stick_up" style="width:16px">
               <div class="tinyfont">UP</div>
             </span>
+            <div class="replier-location">{{ item.reply_control?.location || '' }}</div>
             <p
               v-if="checkReplace(item)"
               style="white-space: normal; word-break: break-all; overflow: hidden"
@@ -181,6 +182,9 @@ const replaceReply = (matchInfo: IMatchInfo) => {
   .uname {
     font-weight: bold;
     line-height: 18px;
+  }
+  .replier-location {
+    color: #99a2aa;
   }
   .message {
     font-size: 14px;

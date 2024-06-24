@@ -36,7 +36,10 @@ interface IOriginalInfo {
     img_width: number
     img_height: number
     img_size: number
-  }[]
+  }[],
+  reply_control: {
+    location: string
+  }
 }
 export interface IMatchInfo extends IOriginalInfo {
   uid: number
@@ -112,6 +115,7 @@ export interface IReplies {
   like: number // 点赞数量
   count: number
   reply_control: {
+    location: string
     sub_reply_entry_text: string
   }
   rpid: number

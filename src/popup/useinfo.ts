@@ -38,7 +38,8 @@ export async function handleResult({ next, type, oid, mode, uid, pictures, regex
       members: item.content.members,
       time: item.ctime,
       nickname_color: item.member.vip.nickname_color,
-      pictures: item.content.pictures
+      pictures: item.content.pictures,
+      reply_control: item.reply_control
     }
     rp_num += Number(item.reply_control?.sub_reply_entry_text?.replace(/共(\d+)条回复/, '$1') || 0) + 1
     // rp_num += item.count || 1
