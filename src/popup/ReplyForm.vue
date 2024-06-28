@@ -63,7 +63,6 @@
 </template>
 
 <script lang="ts" setup>
-import { watchEffect } from 'vue'
 import { filter, view, title, getReply } from './search'
 import { ESortMode } from './type'
 const stopGetReply = () => {
@@ -95,9 +94,6 @@ const limitInput = (event: string) => {
     filter.value.num = event
   }
 }
-watchEffect(() => {
-  localStorage.setItem('REPLY_FILTER', JSON.stringify(filter.value))
-})
 </script>
 
 <style scoped>

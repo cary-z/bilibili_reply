@@ -1,4 +1,4 @@
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import { getAidFormBVid, getEPFormEpId, getAidFormDyid, getTitleInfo, replyAction, replyHate } from '../api/reply'
 import { stringToRegexp } from '../libs/regexp'
@@ -14,10 +14,8 @@ const getInitInfo = () => {
 }
 
 const { bvid, epid, dyid } = getInitInfo()
-const storage_filter = localStorage.getItem('REPLY_FILTER')
 const reply_filter: IFilter =
-  ((bvid || epid || dyid) && { bvid, epid, dyid, num: '1', pictures: false, searchMode: false, mode: ESortMode.HEAT }) ||
-  (storage_filter && JSON.parse(storage_filter))
+ { bvid, epid, dyid, uid: '', keyword: '', num: '1', pictures: false, searchMode: false, mode: ESortMode.HEAT }
 export const filter = ref(reply_filter)
 const clearFilter = () => {
   filter.value = {
@@ -40,6 +38,29 @@ export const view = ref<IView>({
   reply_cur: 0
 })
 export const matchInfo = ref<IMatchInfo[]>([])
+const isChromeExtension = () => window.location.href.startsWith('chrome-extension://')
+
+if (isChromeExtension()) {
+  const storage_filter = localStorage.getItem('REPLY_FILTER')
+  const storage_content = localStorage.getItem('REPLY_CONTENT')
+  const storage_info = localStorage.getItem('REPLY_INFO')
+  storage_filter && (filter.value = JSON.parse(storage_filter))
+  storage_content && (matchInfo.value = JSON.parse(storage_content))
+  storage_info && (view.value = JSON.parse(storage_info))
+}
+
+const setReplyStorage = () => {
+  localStorage.setItem('REPLY_INFO', JSON.stringify(view.value))
+  localStorage.setItem('REPLY_CONTENT', JSON.stringify(matchInfo.value))
+}
+
+watch(filter.value, () => {
+  isChromeExtension() && localStorage.setItem('REPLY_FILTER', JSON.stringify(filter.value))
+});
+
+watch(() => view.value.flag, (val) => {
+  !val && isChromeExtension() && setReplyStorage()
+})
 
 const getTitle = async () => {
   try {

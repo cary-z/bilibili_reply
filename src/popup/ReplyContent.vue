@@ -118,14 +118,14 @@ const replaceReply = (matchInfo: IMatchInfo) => {
       // 关键词链接
       if (item.pc_url) {
         str = str.replace(url, `
-          <a href="${item.pc_url}" data-report="${index++}" class="comment-jump-url" target="_blank">${item.title}</a>
+          <a href="${'https:' + item.pc_url}" data-report="${index++}" class="comment-jump-url" target="_blank">${item.title}</a>
           <i class="icon search-word" style="width: 12px;height: 20px;vertical-align: text-top;background-size: contain;background-image: url(${item.prefix_icon})"></i>
         `)
       } else {
         // 普通视频链接
         str = str.replace(url, `
           <img style="height: 20px;" src="${item.prefix_icon}" class="jump-img">
-          <a style="vertical-align: middle;" href="${url}" data-report="${index++}" class="comment-jump-url" target="_blank">${item.title}</a>
+          <a style="vertical-align: middle;" href="${'https:' + url}" data-report="${index++}" class="comment-jump-url" target="_blank">${item.title}</a>
         `)
       }
     }
@@ -135,7 +135,7 @@ const replaceReply = (matchInfo: IMatchInfo) => {
     const nameArr = members.map(item => item.uname)
     str = str.replace(new RegExp('@(' + nameArr.join('|') + ')', 'g'), match => {
       const index = nameArr.findIndex(item => match.slice(1) === item)
-      return `<a href="//space.bilibili.com/${members[index].mid}" target="_blank" data-usercard-mid="${members[index].mid}">${match} </a>`
+      return `<a href="https://space.bilibili.com/${members[index].mid}" target="_blank" data-usercard-mid="${members[index].mid}">${match} </a>`
     })
   }
   // 处理笔记的图片
