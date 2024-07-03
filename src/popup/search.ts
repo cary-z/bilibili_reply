@@ -2,7 +2,7 @@ import { ref, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import { getAidFormBVid, getEPFormEpId, getAidFormDyid, getTitleInfo, replyAction, replyHate } from '../api/reply'
 import { stringToRegexp } from '../libs/regexp'
-import { SleepMS } from '../libs/utils'
+import { SleepMS, debounce } from '../libs/utils'
 import { handleResult } from './useinfo'
 import { IFilter, IView, IMatchInfo, IHandleResult, EActionStatus, EStatus, EVideoType, ESortMode } from './type'
 
@@ -41,12 +41,18 @@ export const matchInfo = ref<IMatchInfo[]>([])
 const isChromeExtension = () => window.location.href.startsWith('chrome-extension://')
 
 if (isChromeExtension()) {
-  const storage_filter = localStorage.getItem('REPLY_FILTER')
-  const storage_content = localStorage.getItem('REPLY_CONTENT')
-  const storage_info = localStorage.getItem('REPLY_INFO')
-  storage_filter && (filter.value = JSON.parse(storage_filter))
-  storage_content && (matchInfo.value = JSON.parse(storage_content))
-  storage_info && (view.value = JSON.parse(storage_info))
+  const storageFilter = localStorage.getItem('REPLY_FILTER')
+  const storageContent = localStorage.getItem('REPLY_CONTENT')
+  const storageInfo = localStorage.getItem('REPLY_INFO')
+  const storageTitle = localStorage.getItem('REPLY_TITLE')
+  const scrollPosition = localStorage.getItem('SCROLL_POSITION');
+  storageFilter && (filter.value = JSON.parse(storageFilter))
+  storageContent && (matchInfo.value = JSON.parse(storageContent))
+  storageInfo && (view.value = JSON.parse(storageInfo))
+  storageTitle && (title.value = storageTitle)
+  setTimeout(() => {
+    scrollPosition && window.scrollTo(0, parseInt(scrollPosition, 10))
+  }, 100)
 }
 
 const setReplyStorage = () => {
@@ -54,13 +60,29 @@ const setReplyStorage = () => {
   localStorage.setItem('REPLY_CONTENT', JSON.stringify(matchInfo.value))
 }
 
+const setPositionStorage = () => {
+  localStorage.setItem('SCROLL_POSITION', String(window.scrollY))
+}
+
 watch(filter.value, () => {
   isChromeExtension() && localStorage.setItem('REPLY_FILTER', JSON.stringify(filter.value))
-});
+})
+
+watch(() => title.value, (val) => {
+  isChromeExtension() && localStorage.setItem('REPLY_TITLE', title.value)
+})
 
 watch(() => view.value.flag, (val) => {
   !val && isChromeExtension() && setReplyStorage()
 })
+
+const handleScroll = () => {
+  isChromeExtension() && setPositionStorage()
+}
+
+const debouncedHandleScroll = debounce(handleScroll, 200)
+
+window.addEventListener('scroll', debouncedHandleScroll)
 
 const getTitle = async () => {
   try {
@@ -81,7 +103,7 @@ const getTitle = async () => {
     ElMessage.error((err as Error).message)
   }
 }
-getTitle()
+!title.value && getTitle()
 
 // 番剧切换集数 或者根据推荐切换视频
 const switchUpdate = async () => {

@@ -119,7 +119,7 @@ const replaceReply = (matchInfo: IMatchInfo) => {
       if (item.pc_url) {
         str = str.replace(url, `
           <a href="${'https:' + item.pc_url}" data-report="${index++}" class="comment-jump-url" target="_blank">${item.title}</a>
-          <i class="icon search-word" style="width: 12px;height: 20px;vertical-align: text-top;background-size: contain;background-image: url(${item.prefix_icon})"></i>
+          <i class="icon search-word" style="display:inline-block;width: 12px;height: 20px;vertical-align: text-top;background-size: contain;background-image: url(${item.prefix_icon})"></i>
         `)
       } else {
         // 普通视频链接
