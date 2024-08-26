@@ -26,7 +26,7 @@
             <el-input
               :placeholder="'请输入' + (filter.searchMode ? '正则表达式' : '关键词')"
               v-model="filter.keyword"
-              @keyup.enter="getReply"
+              @keyup.enter="search"
               clearable
             ></el-input>
           </el-form-item>
@@ -44,7 +44,7 @@
       <el-row :gutter="10">
         <el-col :span="12">
           <el-form-item label="数量">
-            <el-input placeholder="请输入数量" :model-value="filter.num" @input="limitInput" clearable @keyup.enter="getReply"></el-input>
+            <el-input placeholder="请输入数量" :model-value="filter.num" @input="limitInput" clearable @keyup.enter="search"></el-input>
           </el-form-item>
         </el-col>
         <el-col :span="12">

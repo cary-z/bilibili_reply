@@ -169,6 +169,7 @@ const getOid = async () => {
   } else if (dyid) {
     return await getAidFormDyid(dyid)
   } else {
+    title.value = ''
     throw new Error('无法获取oid')
   }
 }
