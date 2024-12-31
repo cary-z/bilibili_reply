@@ -9,11 +9,14 @@ interface IResult {
     is_end: boolean
     next: number
     all_count: number
+    pagination_reply: {
+      next_offset: string
+    }
   }
 }
 
-export async function handleResult({ next, type, oid, mode, uid, pictures, regexp }: ISendPara) {
-  const result: IResult = await getReplyInfo({ next, type, oid, mode })
+export async function handleResult({ next, type, oid, mode, uid, pictures, regexp, offset }: ISendPara) {
+  const result: IResult = await getReplyInfo({ next, type, oid, mode, offset })
   const info: IMatchInfo[] = []
   if (!result.replies) {
     return { flag: false }
@@ -41,8 +44,8 @@ export async function handleResult({ next, type, oid, mode, uid, pictures, regex
       pictures: item.content.pictures,
       reply_control: item.reply_control
     }
-    rp_num += Number(item.reply_control?.sub_reply_entry_text?.replace(/共\s*(\d+)\s*条回复/, '$1') || 0) + 1
-    // rp_num += item.count || 1
+    // rp_num += Number(item.reply_control?.sub_reply_entry_text?.replace(/共\s*(\d+)\s*条回复/, '$1') || 0) + 1
+    rp_num += item.rcount + 1;
     const matchUser = uid && Number(uid) === item.mid
     const hasPictures = content.pictures && content.pictures.length > 0
     const matchRegexp = regexp?.test(content.message)
@@ -65,13 +68,10 @@ export async function handleResult({ next, type, oid, mode, uid, pictures, regex
     }
     return content
   })
-  if (result.cursor.is_end) {
-    return { flag: false }
-  }
   return {
-    flag: true,
+    flag: !result.cursor.is_end,
     // length: replies.length,
-    extraInfo: { next: result.cursor.next, rp_num, all_count: result.cursor.all_count },
+    extraInfo: { next: result.cursor.next, rp_num, all_count: result.cursor.all_count, nextOffset: result.cursor?.pagination_reply?.next_offset },
     info
   }
 }

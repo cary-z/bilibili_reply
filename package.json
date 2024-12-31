@@ -1,6 +1,6 @@
 {
   "name": "bilibili_reply",
-  "version": "1.5.4",
+  "version": "1.6.0",
   "scripts": {
     "tsc": "vue-tsc --noEmit",
     "build": "vite build",
@@ -11,6 +11,8 @@
   "dependencies": {
     "axios": "^0.21.1",
     "element-plus": "^2.5.3",
+    "md5": "^2.3.0",
+    "qs": "^6.13.1",
     "viewerjs": "^1.11.6",
     "vue": "^3.2.25",
     "vue-router": "4.0.1"

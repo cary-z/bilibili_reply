@@ -14,8 +14,17 @@ const getInitInfo = () => {
 }
 
 const { bvid, epid, dyid } = getInitInfo()
-const reply_filter: IFilter =
- { bvid, epid, dyid, uid: '', keyword: '', num: '1', pictures: false, searchMode: false, mode: ESortMode.HEAT }
+const reply_filter: IFilter = {
+  bvid,
+  epid,
+  dyid,
+  uid: '',
+  keyword: '',
+  num: '1',
+  pictures: false,
+  searchMode: false,
+  mode: ESortMode.HEAT
+}
 export const filter = ref(reply_filter)
 const clearFilter = () => {
   filter.value = {
@@ -45,7 +54,7 @@ if (isChromeExtension()) {
   const storageContent = localStorage.getItem('REPLY_CONTENT')
   const storageInfo = localStorage.getItem('REPLY_INFO')
   const storageTitle = localStorage.getItem('REPLY_TITLE')
-  const scrollPosition = localStorage.getItem('SCROLL_POSITION');
+  const scrollPosition = localStorage.getItem('SCROLL_POSITION')
   storageFilter && (filter.value = JSON.parse(storageFilter))
   storageContent && (matchInfo.value = JSON.parse(storageContent))
   storageInfo && (view.value = JSON.parse(storageInfo))
@@ -68,13 +77,19 @@ watch(filter.value, () => {
   isChromeExtension() && localStorage.setItem('REPLY_FILTER', JSON.stringify(filter.value))
 })
 
-watch(() => title.value, (val) => {
-  isChromeExtension() && localStorage.setItem('REPLY_TITLE', title.value)
-})
+watch(
+  () => title.value,
+  (val) => {
+    isChromeExtension() && localStorage.setItem('REPLY_TITLE', title.value)
+  }
+)
 
-watch(() => view.value.flag, (val) => {
-  !val && isChromeExtension() && setReplyStorage()
-})
+watch(
+  () => view.value.flag,
+  (val) => {
+    !val && isChromeExtension() && setReplyStorage()
+  }
+)
 
 const handleScroll = () => {
   isChromeExtension() && setPositionStorage()
@@ -93,8 +108,7 @@ const getTitle = async () => {
     } else if (bvid) {
       if (bvid == getInitInfo().bvid && window['aid']) {
         title.value = await getTitleInfo(window['aid'])
-      }
-      else {
+      } else {
         const aid = await getAidFormBVid(bvid)
         title.value = await getTitleInfo(aid)
       }
@@ -136,11 +150,11 @@ const getRegexp = () => {
   if (searchMode) {
     try {
       regexp = new RegExp(keyword)
-      const match = keyword.match(new RegExp("^/(.*?)/([gimuy]*)$"));
+      const match = keyword.match(new RegExp('^/(.*?)/([gimuy]*)$'))
       if (match) {
-        const corePattern = match[1];
-        const flags = match[2];
-        regexp = new RegExp(corePattern, flags);
+        const corePattern = match[1]
+        const flags = match[2]
+        regexp = new RegExp(corePattern, flags)
         console.log(regexp)
       } else {
         throw new Error()
@@ -184,6 +198,7 @@ export const getReply = async () => {
     const oid = await getOid()
     let length = 0
     let next = 0
+    let offset = ''
     for (let i = 0; ; i++) {
       if (!view.value.flag) break
       console.time(`第${i + 1}个发包`)
@@ -195,23 +210,25 @@ export const getReply = async () => {
         uid,
         pictures,
         regexp,
+        offset
       })
       console.timeEnd(`第${i + 1}个发包`)
+      length += (result as IHandleResult).extraInfo.rp_num
+      if (result.info && result.info.length > 0) {
+        console.log((result as IHandleResult).info)
+        for (const item of (result as IHandleResult).info) {
+          matchInfo.value.push(item)
+          if (num !== '*' && matchInfo.value.length >= Number(num ?? 0)) {
+            view.value.flag = false
+            break
+          }
+        }
+      }
       if (result.flag) {
-        length += (result as IHandleResult).extraInfo.rp_num
+        offset = (result as IHandleResult).extraInfo.nextOffset || ''
         view.value.reply_cur = length
         view.value.reply_total = (result as IHandleResult).extraInfo.all_count
         next = (result as IHandleResult).extraInfo.next
-        if (result.info && result.info.length > 0) {
-          console.log((result as IHandleResult).info)
-          for (const item of (result as IHandleResult).info) {
-            matchInfo.value.push(item)
-            if (num !== '*' && matchInfo.value.length >= Number(num ?? 0)) {
-              view.value.flag = false
-              break
-            }
-          }
-        }
       } else {
         view.value.reply_cur = view.value.reply_total
         break

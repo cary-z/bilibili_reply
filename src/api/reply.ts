@@ -1,11 +1,15 @@
 import axios from './api_base'
 import { EVideoType } from '../popup/type'
+import { TimestampSecond } from '../libs/utils'
+import md5 from 'md5'
+import qs from 'qs'
 
 interface IGetReplyPara {
   next?: number // 下个索引
   type?: EVideoType // 1为视频，11为动态
   oid: string // 视频aid
   mode?: number // 模式 2 按时间排序 3 按热度排序
+  offset?: string // 下次的偏移参数
 }
 interface IReplyActionPara {
   oid: string // 视频aid
@@ -18,16 +22,23 @@ export async function getReplyInfo(getReplyPara: IGetReplyPara) {
   return getReplyNewAPI(getReplyPara)
 }
 
-async function getReplyNewAPI({ next = 0, type = EVideoType.VIDEO, oid, mode = 3 }: IGetReplyPara) {
+async function getReplyNewAPI({ type = EVideoType.VIDEO, oid, mode = 3, offset }: IGetReplyPara) {
+  const params = {
+    mode,
+    oid,
+    pagination_str: `{"offset":"${offset?.replace(/"/g, '\\"')}"}`,
+    plat: 1,
+    type,
+    web_location: 1315875,
+    wts: TimestampSecond()
+  }
+  // B站服务器会校验这个参数，不通过会返回403
+  const w_rid = md5(qs.stringify(params) + 'ea1db124af3c7062474693fa704f4ff8')
   return axios
-    .get('https://api.bilibili.com/x/v2/reply/main', {
+    .get('https://api.bilibili.com/x/v2/reply/wbi/main', {
       params: {
-        next,
-        ps: 30,
-        type,
-        oid,
-        mode,
-        plat: 1
+        ...params,
+        w_rid
       }
     })
     .then((data) => data.data)

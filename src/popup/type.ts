@@ -84,6 +84,7 @@ export interface ISendPara {
   uid: string
   pictures: boolean
   regexp: RegExp | null
+  offset: string
 }
 
 export interface IHandleResult {
@@ -93,11 +94,13 @@ export interface IHandleResult {
     next: number
     rp_num: number
     all_count: number
+    nextOffset: string
   }
   info: IMatchInfo[]
 }
 
 export interface IReplies {
+  rcount: number
   mid: number // uid
   member: {
     uname: string
