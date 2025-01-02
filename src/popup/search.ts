@@ -203,6 +203,7 @@ export const getReply = async () => {
       if (!view.value.flag) break
       console.time(`第${i + 1}个发包`)
       const result = await handleResult({
+        index: i,
         next,
         type: dyid ? EVideoType.DYNAMIC : EVideoType.VIDEO,
         oid,

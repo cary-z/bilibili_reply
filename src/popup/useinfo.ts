@@ -15,7 +15,7 @@ interface IResult {
   }
 }
 
-export async function handleResult({ next, type, oid, mode, uid, pictures, regexp, offset }: ISendPara) {
+export async function handleResult({ index, next, type, oid, mode, uid, pictures, regexp, offset }: ISendPara) {
   const result: IResult = await getReplyInfo({ next, type, oid, mode, offset })
   const info: IMatchInfo[] = []
   if (!result.replies) {
@@ -23,7 +23,7 @@ export async function handleResult({ next, type, oid, mode, uid, pictures, regex
   }
   let rp_num = 0
   const all_replies =
-    next || mode === ESortMode.TIME ? result.replies : (result.top_replies ?? []).concat(result.replies)
+    index || mode === ESortMode.TIME ? result.replies : (result.top_replies ?? []).concat(result.replies)
   all_replies.forEach((item) => {
     const content: IMatchInfo = {
       uid: item.mid,

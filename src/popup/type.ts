@@ -77,6 +77,7 @@ export enum EStatus {
 }
 
 export interface ISendPara {
+  index: number
   next: number
   type?: EVideoType
   oid: string
