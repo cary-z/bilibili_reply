@@ -53,16 +53,8 @@ export async function handleResult({ index, next, type, oid, mode, uid, pictures
       regexp && matchRegexp && info.push(content)
       !regexp && info.push(content)
     }
-    if (matchUser) {
-      if (pictures) {
-        hasPictures && matchRegexpFn()
-      } else {
-        matchRegexpFn()
-      }
-    } else if (!uid) {
-      if (pictures) {
-        hasPictures && matchRegexpFn()
-      } else {
+    if (matchUser || !uid) {
+      if (!pictures || hasPictures) {
         matchRegexpFn()
       }
     }
