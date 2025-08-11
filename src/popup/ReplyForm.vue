@@ -47,23 +47,20 @@
             <el-input placeholder="请输入数量" :model-value="filter.num" @input="limitInput" clearable @keyup.enter="search"></el-input>
           </el-form-item>
         </el-col>
-        <el-col :span="12">
-          <el-form-item label="(空输入搜索一个，输入*搜索全部)"></el-form-item>
-        </el-col>
       </el-row>
     </el-form>
-    <div class="search_button">
-      <el-button type="primary" :loading="view.flag" @click="search">搜索</el-button>
-      <el-button type="primary" :loading="view.flag" @click="searchAll">搜索全部</el-button>
-      <el-button type="primary" :loading="view.flag" @click="searchSchedule">搜索课代表</el-button>
-      <el-button type="primary" :loading="view.flag" @click="searchPictures">搜索笔记</el-button>
-      <el-button type="danger" @click="stopGetReply">停止搜索</el-button>
+    <div class="search-actions">
+      <el-button type="primary" class="btn search" :loading="view.flag" @click="search">搜索</el-button>
+      <el-button type="primary" class="btn schedule" :loading="view.flag" @click="searchSchedule">搜索课代表</el-button>
+      <el-button type="primary" class="btn notes" :loading="view.flag" @click="searchPictures">搜索笔记</el-button>
+      <el-button type="warning" class="btn clear" :loading="view.flag" @click="clearData">清空数据</el-button>
+      <el-button type="danger" class="btn stop" @click="stopGetReply">停止搜索</el-button>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { filter, view, title, getReply } from './search'
+import { filter, view, title, getReply, clearInfo } from './search'
 import { ESortMode } from './type'
 const stopGetReply = () => {
   view.value.flag = false
@@ -82,27 +79,61 @@ const searchPictures = () => {
   filter.value.pictures = true
   getReply() 
 }
-const searchAll = () => {
-  filter.value.pictures = false
-  filter.value.searchMode = true
-  filter.value.keyword = '/.*/'
-  filter.value.num = '*'
-  getReply()
+const clearData = () => {
+  title.value = ''
+  clearInfo()
 }
 const limitInput = (event: string) => {
-  if (Number(event) || ['', '*'].includes(event)) {
-    filter.value.num = event
-  }
+  filter.value.num = event > 0 ? Math.floor(event) : ''
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .title {
   font-size: 18px;
   font-weight: 500;
   margin-bottom: 10px;
 }
-.search_button {
+.search-actions {
   display: flex;
+
+    .btn {
+      border: none;
+      border-radius: 8px;
+      color: #fff;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+
+    &.search {
+      background: linear-gradient(135deg, #6fa8ff, #a1c4fd);
+    }
+
+    &.schedule {
+      background: linear-gradient(135deg, #6fa8ff, #a1c4fd);
+    }
+
+    &.notes {
+      background: linear-gradient(135deg, #6fa8ff, #a1c4fd);
+    }
+
+    &.clear {
+      background: #ffb347;
+    }
+
+    &.stop {
+      background: linear-gradient(135deg, #ff7f7f, #ff5252);
+    }
+
+    &:hover:not(:disabled) {
+      filter: brightness(1.07);
+      box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15);
+    }
+
+    &:active:not(:disabled) {
+      filter: brightness(0.95);
+    }
+
+  }
 }
 </style>

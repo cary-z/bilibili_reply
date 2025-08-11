@@ -20,7 +20,7 @@ const reply_filter: IFilter = {
   dyid,
   uid: '',
   keyword: '',
-  num: '1',
+  num: '',
   pictures: false,
   searchMode: false,
   mode: ESortMode.HEAT
@@ -33,7 +33,7 @@ const clearFilter = () => {
     dyid: '', // 动态号
     keyword: '', // 关键词
     uid: '', // b站用户id
-    num: '1', // 限制数量
+    num: '', // 限制数量
     pictures: false,
     searchMode: false, // 模式（关键词或者正则）
     mode: ESortMode.HEAT // 模式（热度或者时间）
@@ -99,7 +99,7 @@ const debouncedHandleScroll = debounce(handleScroll, 200)
 
 window.addEventListener('scroll', debouncedHandleScroll)
 
-const getTitle = async () => {
+const getTitle = async (aid = '') => {
   try {
     const { epid, bvid, dyid } = filter.value
     if (epid) {
@@ -109,8 +109,7 @@ const getTitle = async () => {
       if (bvid == getInitInfo().bvid && window['aid']) {
         title.value = await getTitleInfo(window['aid'])
       } else {
-        const aid = await getAidFormBVid(bvid)
-        title.value = await getTitleInfo(aid)
+        title.value = await getTitleInfo(aid || await getAidFormBVid(bvid))
       }
     } else if (dyid) title.value = '动态'
   } catch (err) {
@@ -132,21 +131,23 @@ window.addEventListener('pushState', switchUpdate)
 
 export const clearInfo = () => {
   matchInfo.value = []
-  view.value.flag = true
   view.value.reply_cur = 0
   view.value.reply_total = 0
 }
 
 const checkPara = () => {
-  const { keyword, uid } = filter.value
-  if (!keyword && !uid) {
-    throw new Error('至少输入一条筛选条件')
+  const { bvid } = filter.value
+  if (!bvid) {
+    throw new Error('缺少BV号')
   }
 }
 
 const getRegexp = () => {
   const { keyword, searchMode } = filter.value
-  let regexp: RegExp | null
+  let regexp: RegExp | null = null
+  if (!keyword) {
+    return regexp
+  }
   if (searchMode) {
     try {
       regexp = new RegExp(keyword)
@@ -174,8 +175,9 @@ const getOid = async () => {
   if (bvid) {
     if (bvid == window['bvid']) return window['aid'] as string
     else {
-      getTitle()
-      return await getAidFormBVid(bvid)
+      const aid = await getAidFormBVid(bvid)
+      getTitle(aid)
+      return aid
     }
   } else if (epid) {
     if (window['ep']?.id == epid) return window['ep'].aid + ''
@@ -192,6 +194,7 @@ export const getReply = async () => {
   try {
     checkPara()
     const regexp = getRegexp()
+    view.value.flag = true
     clearInfo()
     await SleepMS(200)
     const { dyid, uid, num, mode, pictures } = filter.value
@@ -219,7 +222,7 @@ export const getReply = async () => {
         console.log((result as IHandleResult).info)
         for (const item of (result as IHandleResult).info) {
           matchInfo.value.push(item)
-          if (num !== '*' && matchInfo.value.length >= Number(num ?? 0)) {
+          if (num !== '' && matchInfo.value.length >= Number(num ?? 0)) {
             view.value.flag = false
             break
           }
