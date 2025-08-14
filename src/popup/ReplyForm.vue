@@ -50,10 +50,10 @@
       </el-row>
     </el-form>
     <div class="search-actions">
-      <el-button type="primary" class="btn search" :loading="view.flag" @click="search">搜索</el-button>
-      <el-button type="primary" class="btn schedule" :loading="view.flag" @click="searchSchedule">搜索课代表</el-button>
-      <el-button type="primary" class="btn notes" :loading="view.flag" @click="searchPictures">搜索笔记</el-button>
-      <el-button type="warning" class="btn clear" :loading="view.flag" @click="clearData">清空数据</el-button>
+      <el-button type="primary" class="btn search" :loading="view.searchStatus === ESearchStatus.SEARCHING" @click="search">搜索</el-button>
+      <el-button type="primary" class="btn schedule" :loading="view.searchStatus === ESearchStatus.SEARCHING" @click="searchSchedule">搜索课代表</el-button>
+      <el-button type="primary" class="btn notes" :loading="view.searchStatus === ESearchStatus.SEARCHING" @click="searchPictures">搜索笔记</el-button>
+      <el-button type="warning" class="btn clear" :loading="view.searchStatus === ESearchStatus.SEARCHING" @click="clearData">清空数据</el-button>
       <el-button type="danger" class="btn stop" @click="stopGetReply">停止搜索</el-button>
     </div>
   </div>
@@ -61,9 +61,9 @@
 
 <script lang="ts" setup>
 import { filter, view, title, getReply, clearInfo } from './search'
-import { ESortMode } from './type'
+import { ESortMode, ESearchStatus } from './type'
 const stopGetReply = () => {
-  view.value.flag = false
+  view.value.searchStatus = ESearchStatus.PAUSED
 }
 const search = () => {
   filter.value.pictures = false
@@ -83,8 +83,9 @@ const clearData = () => {
   title.value = ''
   clearInfo()
 }
+
 const limitInput = (event: string) => {
-  filter.value.num = event > 0 ? Math.floor(event) : ''
+  filter.value.num = Number(event) > 0 ? String(Math.floor(Number(event))) : ''
 }
 </script>
 

@@ -4,7 +4,7 @@ import { getAidFormBVid, getEPFormEpId, getAidFormDyid, getTitleInfo, replyActio
 import { stringToRegexp } from '../libs/regexp'
 import { SleepMS, debounce } from '../libs/utils'
 import { handleResult } from './useinfo'
-import { IFilter, IView, IMatchInfo, IHandleResult, EActionStatus, EStatus, EVideoType, ESortMode } from './type'
+import { IFilter, IView, IMatchInfo, IHandleResult, EActionStatus, EStatus, EVideoType, ESortMode, ESearchStatus } from './type'
 
 const getInitInfo = () => {
   const bvid: string = window['bvid'] ?? /\/video\/(\w+)/.exec(window.location.pathname)?.[1] ?? ''
@@ -42,7 +42,7 @@ const clearFilter = () => {
 !filter.value && clearFilter()
 export const title = ref('')
 export const view = ref<IView>({
-  flag: false,
+  searchStatus: ESearchStatus.IDLE,
   reply_total: 0,
   reply_cur: 0
 })
@@ -85,9 +85,9 @@ watch(
 )
 
 watch(
-  () => view.value.flag,
+  () => view.value.searchStatus === ESearchStatus.PAUSED,
   (val) => {
-    !val && isChromeExtension() && setReplyStorage()
+    val && isChromeExtension() && setReplyStorage()
   }
 )
 
@@ -194,16 +194,17 @@ export const getReply = async () => {
   try {
     checkPara()
     const regexp = getRegexp()
-    view.value.flag = true
+    view.value.searchStatus = ESearchStatus.SEARCHING as ESearchStatus
     clearInfo()
     await SleepMS(200)
     const { dyid, uid, num, mode, pictures } = filter.value
+    
     const oid = await getOid()
     let length = 0
     let next = 0
     let offset = ''
     for (let i = 0; ; i++) {
-      if (!view.value.flag) break
+      if (view.value.searchStatus === ESearchStatus.PAUSED) break
       console.time(`第${i + 1}个发包`)
       const result = await handleResult({
         index: i,
@@ -223,7 +224,7 @@ export const getReply = async () => {
         for (const item of (result as IHandleResult).info) {
           matchInfo.value.push(item)
           if (num !== '' && matchInfo.value.length >= Number(num ?? 0)) {
-            view.value.flag = false
+            view.value.searchStatus = ESearchStatus.IDLE
             break
           }
         }
@@ -240,11 +241,11 @@ export const getReply = async () => {
       await SleepMS(500)
     }
     ElMessage.success('搜索完成')
-    view.value.flag = false
+    view.value.searchStatus = ESearchStatus.IDLE
     console.log('找过的评论个数为' + length)
   } catch (err) {
     ElMessage.error((err as Error).message)
-    view.value.flag = false
+    view.value.searchStatus = ESearchStatus.IDLE
   }
 }
 

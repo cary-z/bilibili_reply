@@ -9,8 +9,14 @@ export interface IFilter {
   searchMode: boolean // 模式（关键词或者正则）
   mode: ESortMode // 模式（热度或者时间）
 }
+export enum ESearchStatus {
+  IDLE = 0,
+  SEARCHING = 1,
+  PAUSED = 2
+}
+
 export interface IView {
-  flag: boolean
+  searchStatus: ESearchStatus
   reply_total: number
   reply_cur: number
 }
