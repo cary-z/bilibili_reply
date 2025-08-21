@@ -17,6 +17,8 @@ export enum ESearchStatus {
 
 export interface IView {
   searchStatus: ESearchStatus
+  offset: string
+  index: number
   reply_total: number
   reply_cur: number
 }
@@ -84,7 +86,6 @@ export enum EStatus {
 
 export interface ISendPara {
   index: number
-  next: number
   type?: EVideoType
   oid: string
   mode?: ESortMode

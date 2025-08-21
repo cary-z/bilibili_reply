@@ -54,7 +54,8 @@
       <el-button type="primary" class="btn schedule" :loading="view.searchStatus === ESearchStatus.SEARCHING" @click="searchSchedule">搜索课代表</el-button>
       <el-button type="primary" class="btn notes" :loading="view.searchStatus === ESearchStatus.SEARCHING" @click="searchPictures">搜索笔记</el-button>
       <el-button type="warning" class="btn clear" :loading="view.searchStatus === ESearchStatus.SEARCHING" @click="clearData">清空数据</el-button>
-      <el-button type="danger" class="btn stop" @click="stopGetReply">停止搜索</el-button>
+      <el-button v-show="view.searchStatus === ESearchStatus.SEARCHING" type="danger" class="btn stop" @click="stopGetReply">停止搜索</el-button>
+      <el-button v-show="view.searchStatus === ESearchStatus.PAUSED" type="primary" class="btn continue" @click="continueGetReply">继续搜索</el-button>
     </div>
   </div>
 </template>
@@ -64,6 +65,10 @@ import { filter, view, title, getReply, clearInfo } from './search'
 import { ESortMode, ESearchStatus } from './type'
 const stopGetReply = () => {
   view.value.searchStatus = ESearchStatus.PAUSED
+}
+const continueGetReply = () => {
+  view.value.searchStatus = ESearchStatus.SEARCHING
+  getReply()
 }
 const search = () => {
   filter.value.pictures = false
@@ -81,6 +86,7 @@ const searchPictures = () => {
 }
 const clearData = () => {
   title.value = ''
+  view.value.searchStatus = ESearchStatus.IDLE
   clearInfo()
 }
 
@@ -124,6 +130,10 @@ const limitInput = (event: string) => {
 
     &.stop {
       background: linear-gradient(135deg, #ff7f7f, #ff5252);
+    }
+
+    &.continue {
+      background: linear-gradient(135deg, #00cc44, #88ee88);
     }
 
     &:hover:not(:disabled) {

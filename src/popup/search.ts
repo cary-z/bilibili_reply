@@ -43,6 +43,8 @@ const clearFilter = () => {
 export const title = ref('')
 export const view = ref<IView>({
   searchStatus: ESearchStatus.IDLE,
+  offset: '',
+  index: 0,
   reply_total: 0,
   reply_cur: 0
 })
@@ -79,9 +81,17 @@ watch(filter.value, () => {
 
 watch(
   () => title.value,
-  (val) => {
+  () => {
     isChromeExtension() && localStorage.setItem('REPLY_TITLE', title.value)
   }
+)
+
+watch(
+  () => filter.value,
+  () => {
+    view.value.searchStatus = ESearchStatus.IDLE
+  },
+  { deep: true }
 )
 
 watch(
@@ -133,6 +143,9 @@ export const clearInfo = () => {
   matchInfo.value = []
   view.value.reply_cur = 0
   view.value.reply_total = 0
+  view.value.offset = ''
+  view.value.index = 0
+  isChromeExtension() && setReplyStorage()
 }
 
 const checkPara = () => {
@@ -194,21 +207,18 @@ export const getReply = async () => {
   try {
     checkPara()
     const regexp = getRegexp()
-    view.value.searchStatus = ESearchStatus.SEARCHING as ESearchStatus
-    clearInfo()
-    await SleepMS(200)
+    if (view.value.searchStatus !== ESearchStatus.SEARCHING) clearInfo()
     const { dyid, uid, num, mode, pictures } = filter.value
-    
+
     const oid = await getOid()
-    let length = 0
-    let next = 0
-    let offset = ''
-    for (let i = 0; ; i++) {
-      if (view.value.searchStatus === ESearchStatus.PAUSED) break
-      console.time(`第${i + 1}个发包`)
+    let length = view.value.reply_cur
+    let offset = view.value.offset
+    view.value.searchStatus = ESearchStatus.SEARCHING
+    for (let index = view.value.index; ; index++) {
+      if (view.value.searchStatus !== ESearchStatus.SEARCHING) break
+      console.time(`第${index + 1}个发包`)
       const result = await handleResult({
-        index: i,
-        next,
+        index,
         type: dyid ? EVideoType.DYNAMIC : EVideoType.VIDEO,
         oid,
         mode,
@@ -217,31 +227,36 @@ export const getReply = async () => {
         regexp,
         offset
       })
-      console.timeEnd(`第${i + 1}个发包`)
+      console.timeEnd(`第${index + 1}个发包`)
       length += (result as IHandleResult).extraInfo.rp_num
       if (result.info && result.info.length > 0) {
         console.log((result as IHandleResult).info)
         for (const item of (result as IHandleResult).info) {
           matchInfo.value.push(item)
           if (num !== '' && matchInfo.value.length >= Number(num ?? 0)) {
-            view.value.searchStatus = ESearchStatus.IDLE
+            view.value.searchStatus = ESearchStatus.IDLE as ESearchStatus
             break
           }
         }
       }
       if (result.flag) {
         offset = (result as IHandleResult).extraInfo.nextOffset || ''
+        view.value.offset = offset
+        view.value.index = index + 1
         view.value.reply_cur = length
         view.value.reply_total = (result as IHandleResult).extraInfo.all_count
-        next = (result as IHandleResult).extraInfo.next
       } else {
         view.value.reply_cur = view.value.reply_total
         break
       }
       await SleepMS(500)
     }
-    ElMessage.success('搜索完成')
-    view.value.searchStatus = ESearchStatus.IDLE
+    if (view.value.searchStatus === ESearchStatus.SEARCHING) {
+      view.value.searchStatus = ESearchStatus.IDLE
+      ElMessage.success('搜索完成')
+    } else if (view.value.searchStatus === ESearchStatus.PAUSED) {
+      ElMessage.warning('搜索暂停')
+    }
     console.log('找过的评论个数为' + length)
   } catch (err) {
     ElMessage.error((err as Error).message)

@@ -7,7 +7,6 @@ interface IResult {
   upper: { mid: number }
   cursor: {
     is_end: boolean
-    next: number
     all_count: number
     pagination_reply: {
       next_offset: string
@@ -15,8 +14,8 @@ interface IResult {
   }
 }
 
-export async function handleResult({ index, next, type, oid, mode, uid, pictures, regexp, offset }: ISendPara) {
-  const result: IResult = await getReplyInfo({ next, type, oid, mode, offset })
+export async function handleResult({ index, type, oid, mode, uid, pictures, regexp, offset }: ISendPara) {
+  const result: IResult = await getReplyInfo({ type, oid, mode, offset })
   const info: IMatchInfo[] = []
   if (!result.replies) {
     return { flag: false }
@@ -63,7 +62,7 @@ export async function handleResult({ index, next, type, oid, mode, uid, pictures
   return {
     flag: !result.cursor.is_end,
     // length: replies.length,
-    extraInfo: { next: result.cursor.next, rp_num, all_count: result.cursor.all_count, nextOffset: result.cursor?.pagination_reply?.next_offset },
+    extraInfo: { rp_num, all_count: result.cursor.all_count, nextOffset: result.cursor?.pagination_reply?.next_offset },
     info
   }
 }

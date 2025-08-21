@@ -5,7 +5,6 @@ import md5 from 'md5'
 import qs from 'qs'
 
 interface IGetReplyPara {
-  next?: number // 下个索引
   type?: EVideoType // 1为视频，11为动态
   oid: string // 视频aid
   mode?: number // 模式 2 按时间排序 3 按热度排序
