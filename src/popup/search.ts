@@ -95,7 +95,7 @@ watch(
 )
 
 watch(
-  () => view.value.searchStatus === ESearchStatus.PAUSED,
+  () => (view.value.searchStatus === ESearchStatus.PAUSED || view.value.searchStatus === ESearchStatus.IDLE),
   (val) => {
     val && isChromeExtension() && setReplyStorage()
   }
