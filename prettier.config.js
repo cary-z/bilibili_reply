@@ -7,6 +7,7 @@ module.exports = {
   htmlWhitespaceSensitivity: 'ignore',
   trailingComma: 'none', // 多行使用拖尾逗号（默认none）
   bracketSpacing: true, // 对象字面量的大括号间使用空格（默认true）
-  jsxBracketSameLine: true, // 多行JSX中的>放置在最后一行的结尾，而不是另起一行（默认false）
-  arrowParens: 'always' // 只有一个参数的箭头函数的参数是否带圆括号（默认avoid）
+  bracketSameLine: true, // 多行JSX中的>放置在最后一行的结尾，而不是另起一行（默认false）
+  arrowParens: 'always', // 只有一个参数的箭头函数的参数是否带圆括号（默认avoid）
+  endOfLine: 'lf' // 统一使用 LF 行尾符（Unix风格）
 }

@@ -7,13 +7,13 @@
     "strict": true,
     "jsx": "preserve",
     "sourceMap": true,
-    "declaration": true, 
+    "declaration": true,
     "noImplicitAny": false,
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "lib": ["esnext", "dom"],
     "types": ["element-plus/global"]
   },
-  "include": ["src/**/*.ts","types/*.d.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"],
+  "include": ["src/**/*.ts", "types/*.d.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"],
   "exclude": ["node_modules"]
 }

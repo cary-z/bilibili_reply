@@ -5,16 +5,11 @@
       :text-inside="true"
       :stroke-width="20"
       :percentage="Math.ceil((view.reply_cur / view.reply_total) * 100) || 0"
-      status="success"
-    />
+      status="success" />
     <div id="bilibili_reply" class="bb-comment">
       <template v-if="matchInfo.length > 0">
         <div v-for="(item, index) in matchInfo" :key="'matchInfo_' + index" class="info p-1">
-          <el-tooltip
-            effect="dark"
-            :content="`序号:${index + 1} uid:${item.uid}`"
-            placement="top-start"
-          >
+          <el-tooltip effect="dark" :content="`序号:${index + 1} uid:${item.uid}`" placement="top-start">
             <img :src="item.avatar.replace('http:', 'https:')" class="avatar" />
           </el-tooltip>
           <div class="ml-2">
@@ -22,29 +17,27 @@
               :style="`color:${item.nickname_color || '#6d757a'};vertical-align: middle;`"
               :href="'https://space.bilibili.com/' + item.uid"
               target="_blank"
-              class="uname"
-            >{{ item.uname }}</a>
+              class="uname">
+              {{ item.uname }}
+            </a>
             <Svg :level="item.level" />
-            <span v-if="item.upper_uid === item.uid" class="stick_up" style="width:16px">
+            <span v-if="item.upper_uid === item.uid" class="stick_up" style="width: 16px">
               <div class="tinyfont">UP</div>
             </span>
             <div class="replier-location">{{ item.reply_control?.location || '' }}</div>
             <p
               v-if="checkReplace(item)"
               style="white-space: normal; word-break: break-all; overflow: hidden"
-              v-html="replaceReply(item)"
               class="message"
-            ></p>
-            <p
-              v-else
-              style="white-space: normal; word-break: break-all; overflow: hidden"
-              class="message"
-            >{{ item.message }}</p>
+              v-html="replaceReply(item)"></p>
+            <p v-else style="white-space: normal; word-break: break-all; overflow: hidden" class="message">
+              {{ item.message }}
+            </p>
             <div class="reply_bottom">
               <span class="time">{{ formatTime(item.time) }}</span>
               <span :class="`like ${item.action === EActionStatus.LIKE ? 'liked' : ''}`" @click="ReplyAction(item)">
                 <i></i>
-                <span>{{item.like || ''}}</span>
+                <span>{{ item.like || '' }}</span>
               </span>
               <span :class="`hate ${item.action === EActionStatus.HATE ? 'hated' : ''}`" @click="ReplyHate(item)">
                 <i></i>
@@ -63,17 +56,23 @@
 </template>
 
 <script lang="ts" setup>
-import { nextTick } from 'vue';
+import { nextTick } from 'vue'
 import Svg from './Svg.vue'
-import Viewer from 'viewerjs';
-import 'viewerjs/dist/viewer.css';
+import Viewer from 'viewerjs'
+import 'viewerjs/dist/viewer.css'
 import { view, matchInfo, ReplyAction, ReplyHate } from './search'
 import { formatTime } from '../libs/utils'
 import { IMatchInfo, EActionStatus } from './type'
 
 const regexp = /\d+((：|:)\d+){1,2}/
 const checkReplace = (matchInfo: IMatchInfo) => {
-  return /\n/.test(matchInfo.message) || matchInfo.emote || regexp.test(matchInfo.message) || matchInfo.jump_url || matchInfo.members
+  return (
+    /\n/.test(matchInfo.message) ||
+    matchInfo.emote ||
+    regexp.test(matchInfo.message) ||
+    matchInfo.jump_url ||
+    matchInfo.members
+  )
 }
 const replaceReply = (matchInfo: IMatchInfo) => {
   const { message, emote, jump_url, members, pictures } = matchInfo
@@ -87,16 +86,15 @@ const replaceReply = (matchInfo: IMatchInfo) => {
       const className = item.meta.size === 1 ? 'small' : 'middle'
       str = str.replace(
         new RegExp(item.text.replace(/(\[|\])/g, '\\$1'), 'g'),
-        `<img src="${item.url.replace(
-          'http:',
-          ''
-        ).replace(/@.*/,'')}@100w_100h.webp" class="${className}" alt="${item.text}">`
+        `<img src="${item.url
+          .replace('http:', '')
+          .replace(/@.*/, '')}@100w_100h.webp" class="${className}" alt="${item.text}">`
       )
     }
   }
   // 处理跳转时间
   if (regexp.test(message)) {
-    str = str.replace(/\d+((：|:)\d+){1,2}/g, match => {
+    str = str.replace(/\d+((：|:)\d+){1,2}/g, (match) => {
       if (match.includes(':') || match.includes('：')) {
         const arr = match.replace(/:|：/g, '-').split('-')
         const data_time =
@@ -113,7 +111,7 @@ const replaceReply = (matchInfo: IMatchInfo) => {
   // 处理链接
   if (Object.keys(jump_url).length > 0) {
     const addProtocolPrefix = (url: string) => {
-      if(url.startsWith('https:')) {
+      if (url.startsWith('https:')) {
         return url
       }
       return 'https:' + url
@@ -123,53 +121,63 @@ const replaceReply = (matchInfo: IMatchInfo) => {
       const item = jump_url[url]
       // 关键词链接
       if (item.pc_url) {
-        str = str.replace(url, `
+        str = str.replace(
+          url,
+          `
           <a href="${addProtocolPrefix(item.pc_url)}" data-report="${index++}" class="comment-jump-url" target="_blank">${item.title}</a>
           <i class="icon search-word" style="display:inline-block;width: 12px;height: 20px;vertical-align: text-top;background-size: contain;background-image: url(${item.prefix_icon})"></i>
-        `)
+        `
+        )
       } else {
         // 普通视频链接
-        str = str.replace(url, `
+        str = str.replace(
+          url,
+          `
           <img style="vertical-align: middle;height: 20px;" src="${item.prefix_icon}" class="jump-img">
           <a style="vertical-align: middle;" href="${addProtocolPrefix(url)}" data-report="${index++}" class="comment-jump-url" target="_blank">${item.title}</a>
-        `)
+        `
+        )
       }
     }
   }
   // 处理@用户
   if (members.length > 0) {
-    const nameArr = members.map(item => item.uname)
-    str = str.replace(new RegExp('@(' + nameArr.join('|') + ')', 'g'), match => {
-      const index = nameArr.findIndex(item => match.slice(1) === item)
+    const nameArr = members.map((item) => item.uname)
+    str = str.replace(new RegExp('@(' + nameArr.join('|') + ')', 'g'), (match) => {
+      const index = nameArr.findIndex((item) => match.slice(1) === item)
       return `<a href="https://space.bilibili.com/${members[index].mid}" target="_blank" data-usercard-mid="${members[index].mid}">${match} </a>`
     })
   }
   // 处理笔记的图片
   if (pictures && pictures.length > 0) {
-    const imgStr = pictures.map(picture => (`
+    const imgStr = pictures
+      .map(
+        (picture) => `
       <li class="image-item-wrap vertical" style="width: 88px; height: 88px;">
         <img src="${picture.img_src}@88w_88h_1c_1s_!web-comment-note.avif" alt="image">
       </li>
-    `)).join('');
+    `
+      )
+      .join('')
     str += `
     <ul id="bilibili-reply__note-picture" class="preview-image-container">
       ${imgStr}
     </ul>
-    `;
+    `
   }
   nextTick(() => {
     // 给图片绑定点击事件
-    const imageElements = document.querySelectorAll('#bilibili-reply__note-picture');
-    imageElements.forEach(function(element) {
+    const imageElements = document.querySelectorAll('#bilibili-reply__note-picture')
+    imageElements.forEach(function (element) {
       new Viewer(element as HTMLElement, {
         url(image) {
-          return image.src.replace('@88w_88h_1c_1s_!web-comment-note.avif', '@!web-comment-note.avif');
+          return image.src.replace('@88w_88h_1c_1s_!web-comment-note.avif', '@!web-comment-note.avif')
         },
         title: false,
         rotatable: false,
-        scalable: false,
+        scalable: false
       })
-    });
+    })
   })
   return str
 }
@@ -216,8 +224,7 @@ const replaceReply = (matchInfo: IMatchInfo) => {
         height: 14px;
         vertical-align: text-top;
         margin-right: 5px;
-        background: url(https://s1.hdslb.com/bfs/seed/jinkela/commentpc/static/img/icons-comment.2f36fc5.png)
-          no-repeat;
+        background: url(https://s1.hdslb.com/bfs/seed/jinkela/commentpc/static/img/icons-comment.2f36fc5.png) no-repeat;
         background-position: -153px -25px;
       }
     }
@@ -236,16 +243,15 @@ const replaceReply = (matchInfo: IMatchInfo) => {
         height: 14px;
         vertical-align: text-top;
         margin-right: 5px;
-        background: url(https://s1.hdslb.com/bfs/seed/jinkela/commentpc/static/img/icons-comment.2f36fc5.png)
-          no-repeat;
+        background: url(https://s1.hdslb.com/bfs/seed/jinkela/commentpc/static/img/icons-comment.2f36fc5.png) no-repeat;
         background-position: -153px -153px;
       }
     }
   }
   & ::v-deep(.small) {
-    width:20px;
-    height:20px;
-    vertical-align:text-bottom;
+    width: 20px;
+    height: 20px;
+    vertical-align: text-bottom;
   }
   & ::v-deep(.middle) {
     padding: 0 1px;

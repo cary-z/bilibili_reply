@@ -44,7 +44,7 @@ export async function handleResult({ index, type, oid, mode, uid, pictures, rege
       reply_control: item.reply_control
     }
     // rp_num += Number(item.reply_control?.sub_reply_entry_text?.replace(/共\s*(\d+)\s*条回复/, '$1') || 0) + 1
-    rp_num += item.rcount + 1;
+    rp_num += item.rcount + 1
     const matchUser = uid && Number(uid) === item.mid
     const hasPictures = content.pictures && content.pictures.length > 0
     const matchRegexp = regexp?.test(content.message)
@@ -59,6 +59,7 @@ export async function handleResult({ index, type, oid, mode, uid, pictures, rege
     }
     return content
   })
+
   return {
     flag: !result.cursor.is_end,
     // length: replies.length,

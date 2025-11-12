@@ -33,7 +33,7 @@ interface IOriginalInfo {
     }
   }
   jump_url: {
-    [key: string]: { prefix_icon: string; title: string, pc_url: string }
+    [key: string]: { prefix_icon: string; title: string; pc_url: string }
   }
   members: {
     mid: string
@@ -44,7 +44,7 @@ interface IOriginalInfo {
     img_width: number
     img_height: number
     img_size: number
-  }[],
+  }[]
   reply_control: {
     location: string
   }

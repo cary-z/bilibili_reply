@@ -4,7 +4,17 @@ import { getAidFormBVid, getEPFormEpId, getAidFormDyid, getTitleInfo, replyActio
 import { stringToRegexp } from '../libs/regexp'
 import { SleepMS, debounce } from '../libs/utils'
 import { handleResult } from './useinfo'
-import { IFilter, IView, IMatchInfo, IHandleResult, EActionStatus, EStatus, EVideoType, ESortMode, ESearchStatus } from './type'
+import {
+  IFilter,
+  IView,
+  IMatchInfo,
+  IHandleResult,
+  EActionStatus,
+  EStatus,
+  EVideoType,
+  ESortMode,
+  ESearchStatus
+} from './type'
 
 const getInitInfo = () => {
   const bvid: string = window['bvid'] ?? /\/video\/(\w+)/.exec(window.location.pathname)?.[1] ?? ''
@@ -95,7 +105,7 @@ watch(
 )
 
 watch(
-  () => (view.value.searchStatus === ESearchStatus.PAUSED || view.value.searchStatus === ESearchStatus.IDLE),
+  () => view.value.searchStatus === ESearchStatus.PAUSED || view.value.searchStatus === ESearchStatus.IDLE,
   (val) => {
     val && isChromeExtension() && setReplyStorage()
   }
@@ -119,7 +129,7 @@ const getTitle = async (aid = '') => {
       if (bvid == getInitInfo().bvid && window['aid']) {
         title.value = await getTitleInfo(window['aid'])
       } else {
-        title.value = await getTitleInfo(aid || await getAidFormBVid(bvid))
+        title.value = await getTitleInfo(aid || (await getAidFormBVid(bvid)))
       }
     } else if (dyid) title.value = '动态'
   } catch (err) {

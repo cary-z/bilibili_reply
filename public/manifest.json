@@ -1,40 +1,39 @@
 {
-    "manifest_version": 3,
-    "name": "bilibili-B站评论搜索助手",
-    "description": "chrome extension",
-    "version": "1.6.3",
-    "host_permissions": [
-        "*://*.bilibili.com/*"
-    ],
-    "background": {
-        "service_worker": "background.js"
-    },
-    "action": {
-        "default_icon": "bilibili.png",
-        "default_popup": "src/popup/index.html"
-    },
-    "icons": {
-        "16": "bilibili.png",
-        "48": "bilibili.png",
-        "128": "bilibili.png"
-    },
-    "content_scripts": 
-	[
-		{
-			"matches": [
-                "https://www.bilibili.com/video/*",
-                "https://www.bilibili.com/bangumi/play/*",
-                "https://t.bilibili.com/*?tab=2"
-            ],
-			"js": ["content.js"],
-			"run_at": "document_end"
-		}
-	],
-    "content_security_policy": {
-        "extension_pages": "script-src 'self'; object-src 'self'; script-src-elem 'self'"
-    },
-    "web_accessible_resources": [{
-        "resources": ["main.js","vendor.js","App.js","vendor.css","App.css","bilibili.png"],
-        "matches": ["<all_urls>"]
-    }]
+  "manifest_version": 3,
+  "name": "bilibili-B站评论搜索助手",
+  "description": "chrome extension",
+  "version": "1.6.3",
+  "host_permissions": ["*://*.bilibili.com/*"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_icon": "bilibili.png",
+    "default_popup": "src/popup/index.html"
+  },
+  "icons": {
+    "16": "bilibili.png",
+    "48": "bilibili.png",
+    "128": "bilibili.png"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.bilibili.com/video/*",
+        "https://www.bilibili.com/bangumi/play/*",
+        "https://t.bilibili.com/*?tab=2"
+      ],
+      "js": ["content.js"],
+      "run_at": "document_end"
+    }
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'; script-src-elem 'self'"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["main.js", "vendor.js", "App.js", "vendor.css", "App.css", "bilibili.png"],
+      "matches": ["<all_urls>"]
+    }
+  ]
 }
