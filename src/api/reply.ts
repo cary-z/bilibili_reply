@@ -17,6 +17,14 @@ interface IReplyActionPara {
   action: number // 0为取消 1为确定
   csrf: string // csrf验证
 }
+interface IGetReplyDetailPara {
+  oid: string // 视频aid
+  root: number | string // 根评论id
+  type?: EVideoType // 1为视频，11为动态
+  ps?: number // 每页数量
+  pn?: number // 页码
+  webLocation?: string // web_location参数
+}
 export async function getReplyInfo(getReplyPara: IGetReplyPara) {
   return getReplyNewAPI(getReplyPara)
 }
@@ -41,6 +49,27 @@ async function getReplyNewAPI({ type = EVideoType.VIDEO, oid, mode = 3, offset }
       }
     })
     .then((data) => data.data)
+}
+
+export async function getReplyDetail({
+  oid,
+  root,
+  type = EVideoType.VIDEO,
+  ps = 10,
+  pn = 1,
+  webLocation = '1315875'
+}: IGetReplyDetailPara) {
+  const url = 'https://api.bilibili.com/x/v2/reply/reply'
+  const params = {
+    oid,
+    type,
+    root,
+    ps,
+    pn,
+    web_location: webLocation
+  }
+  const result = (await axios.get(url, { params })) as any
+  return result.data
 }
 
 // async function getReplyOldAPI({ next = 0, type = 1, oid, mode = 3 }: IGetReplyPara) {

@@ -47,6 +47,7 @@ interface IOriginalInfo {
   }[]
   reply_control: {
     location: string
+    sub_reply_entry_text?: string
   }
 }
 export interface IMatchInfo extends IOriginalInfo {
@@ -54,6 +55,7 @@ export interface IMatchInfo extends IOriginalInfo {
   uname: string
   action: number
   like: number
+  rcount: number
   upper_uid: number
   level: number
   avatar: string
@@ -131,4 +133,13 @@ export interface IReplies {
   }
   rpid: number
   ctime: number
+}
+
+export interface ISubReplyState {
+  visible: boolean
+  loading: boolean
+  page: number
+  pageSize: number
+  total: number
+  list: IMatchInfo[]
 }

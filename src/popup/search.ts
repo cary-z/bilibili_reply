@@ -1,6 +1,14 @@
 import { ref, watch } from 'vue'
 import { ElMessage } from 'element-plus'
-import { getAidFormBVid, getEPFormEpId, getAidFormDyid, getTitleInfo, replyAction, replyHate } from '../api/reply'
+import {
+  getAidFormBVid,
+  getEPFormEpId,
+  getAidFormDyid,
+  getTitleInfo,
+  replyAction,
+  replyHate,
+  getReplyDetail
+} from '../api/reply'
 import { stringToRegexp } from '../libs/regexp'
 import { SleepMS, debounce } from '../libs/utils'
 import { handleResult } from './useinfo'
@@ -9,6 +17,8 @@ import {
   IView,
   IMatchInfo,
   IHandleResult,
+  IReplies,
+  ISubReplyState,
   EActionStatus,
   EStatus,
   EVideoType,
@@ -59,6 +69,99 @@ export const view = ref<IView>({
   reply_cur: 0
 })
 export const matchInfo = ref<IMatchInfo[]>([])
+const SUB_REPLY_PAGE_SIZE = 10
+export const subReplyMap = ref<Record<string, ISubReplyState>>({})
+
+const ensureSubReplyState = (key: string): ISubReplyState => {
+  if (!subReplyMap.value[key]) {
+    subReplyMap.value[key] = {
+      visible: false,
+      loading: false,
+      page: 1,
+      pageSize: SUB_REPLY_PAGE_SIZE,
+      total: 0,
+      list: []
+    }
+  }
+  return subReplyMap.value[key]
+}
+
+const normalizeReply = (reply: IReplies, upperUid: number): IMatchInfo => {
+  return {
+    uid: reply.mid,
+    uname: reply.member.uname,
+    action: reply.action,
+    like: reply.like,
+    rcount: reply.rcount ?? 0,
+    level: reply.member.level_info.current_level,
+    upper_uid: upperUid,
+    avatar: reply.member.avatar,
+    sex: reply.member.sex,
+    rpid: reply.rpid,
+    message: reply.content?.message ?? '',
+    emote: reply.content?.emote ?? {},
+    jump_url: reply.content?.jump_url ?? {},
+    members: reply.content?.members ?? [],
+    time: reply.ctime,
+    nickname_color: reply.member.vip?.nickname_color ?? '',
+    pictures: reply.content?.pictures ?? [],
+    reply_control: reply.reply_control ?? { location: '', sub_reply_entry_text: '' }
+  }
+}
+
+const fetchSubReplies = async (root: IMatchInfo, page = 1) => {
+  const key = String(root.rpid)
+  const state = ensureSubReplyState(key)
+  if (state.loading) return
+  state.loading = true
+  state.page = page
+  try {
+    const oid = await getOid()
+    const { dyid } = filter.value
+    const type = dyid ? EVideoType.DYNAMIC : EVideoType.VIDEO
+    const result = await getReplyDetail({
+      oid,
+      root: root.rpid,
+      type,
+      pn: page,
+      ps: state.pageSize,
+      webLocation: '333.788'
+    })
+    const replies: IReplies[] = result?.replies ?? []
+    state.list = replies.map((reply) => normalizeReply(reply, root.upper_uid))
+    state.page = result?.page?.num ?? page
+    state.pageSize = result?.page?.size ?? state.pageSize
+    state.total = result?.page?.count ?? root.rcount ?? state.list.length
+    state.visible = true
+  } catch (err) {
+    state.visible = true
+    state.list = []
+    ElMessage.error((err as Error).message)
+  } finally {
+    state.loading = false
+  }
+}
+
+export const toggleSubReplies = async (root: IMatchInfo) => {
+  const key = String(root.rpid)
+  const state = ensureSubReplyState(key)
+  if (state.visible) {
+    state.visible = false
+    return
+  }
+  if (!state.list.length) {
+    await fetchSubReplies(root, 1)
+  } else {
+    state.visible = true
+  }
+}
+
+export const changeSubReplyPage = async (root: IMatchInfo, page: number) => {
+  const key = String(root.rpid)
+  const state = ensureSubReplyState(key)
+  if (state.loading || state.page === page) return
+  await fetchSubReplies(root, page)
+}
 const isChromeExtension = () => window.location.href.startsWith('chrome-extension://')
 
 if (isChromeExtension()) {
@@ -155,6 +258,7 @@ export const clearInfo = () => {
   view.value.reply_total = 0
   view.value.offset = ''
   view.value.index = 0
+  subReplyMap.value = {}
   isChromeExtension() && setReplyStorage()
 }
 

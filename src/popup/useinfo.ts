@@ -29,6 +29,7 @@ export async function handleResult({ index, type, oid, mode, uid, pictures, rege
       uname: item.member.uname,
       action: item.action,
       like: item.like,
+      rcount: item.rcount ?? 0,
       level: item.member.level_info.current_level,
       upper_uid: result.upper.mid,
       avatar: item.member.avatar,
