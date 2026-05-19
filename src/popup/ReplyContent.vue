@@ -12,7 +12,7 @@
           <el-tooltip effect="dark" :content="`序号:${index + 1} uid:${item.uid}`" placement="top-start">
             <img :src="item.avatar.replace('http:', 'https:')" class="avatar" />
           </el-tooltip>
-          <div class="ml-2">
+          <div class="ml-2" style="flex: 1; min-width: 0">
             <a
               :style="`color:${item.nickname_color || '#6d757a'};vertical-align: middle;`"
               :href="'https://space.bilibili.com/' + item.uid"
