@@ -114,19 +114,22 @@ const stopGetReply = () => {
 }
 const continueGetReply = () => {
   view.value.searchStatus = ESearchStatus.SEARCHING
-  getReply()
+  getReply(false)
 }
 const search = () => {
+  if (view.value.searchStatus === ESearchStatus.SEARCHING) return
   filter.value.pictures = false
   getReply()
 }
 const searchSchedule = () => {
+  if (view.value.searchStatus === ESearchStatus.SEARCHING) return
   filter.value.pictures = false
   filter.value.searchMode = true
   filter.value.keyword = '/\\d+(:|：)\\d+/'
   getReply()
 }
 const searchPictures = () => {
+  if (view.value.searchStatus === ESearchStatus.SEARCHING) return
   filter.value.pictures = true
   getReply()
 }

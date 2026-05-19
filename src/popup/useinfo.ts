@@ -70,7 +70,7 @@ export async function handleResult({ index, type, oid, mode, uid, pictures, rege
   }
 }
 
-function checkReplyMatch(reply: IReplies, para: ISendPara, upperMid: number): boolean {
+function checkReplyMatch(reply: IReplies, para: ISendPara): boolean {
   if (!reply.content) return false
   const matchUser = para.uid && Number(para.uid) === reply.mid
   const hasPictures = reply.content.pictures && reply.content.pictures.length > 0
@@ -124,9 +124,9 @@ export async function handleSubReplyResult(para: ISendPara) {
       batch.map(async (reply) => {
         rp_num += (reply.rcount ?? 0) + 1
 
-        const parentMatch = checkReplyMatch(reply, para, result.upper.mid)
+        const parentMatch = checkReplyMatch(reply, para)
 
-        let matchedChildren: IMatchInfo[] = []
+        const matchedChildren: IMatchInfo[] = []
         try {
           const subResult = await getReplyDetail({
             oid: para.oid,
@@ -137,7 +137,7 @@ export async function handleSubReplyResult(para: ISendPara) {
           })
           const subReplies: IReplies[] = subResult?.replies ?? []
           for (const sub of subReplies) {
-            if (checkReplyMatch(sub, para, result.upper.mid)) {
+            if (checkReplyMatch(sub, para)) {
               matchedChildren.push(replyToMatchInfo(sub, result.upper.mid))
             }
           }
@@ -146,7 +146,10 @@ export async function handleSubReplyResult(para: ISendPara) {
         }
 
         if (parentMatch || matchedChildren.length > 0) {
-          return { ...replyToMatchInfo(reply, result.upper.mid), children: matchedChildren.length > 0 ? matchedChildren : undefined }
+          return {
+            ...replyToMatchInfo(reply, result.upper.mid),
+            children: matchedChildren.length > 0 ? matchedChildren : undefined
+          }
         }
         return null
       })

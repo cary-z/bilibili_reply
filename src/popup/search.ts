@@ -321,19 +321,19 @@ const getOid = async () => {
   }
 }
 
-export const getReply = async () => {
+export const getReply = async (reset = true) => {
   try {
     checkPara()
     const regexp = getRegexp()
-    if (view.value.searchStatus !== ESearchStatus.SEARCHING) clearInfo()
+    if (reset) clearInfo()
     searchedRegexp.value = regexp
     const { dyid, uid, num, mode, pictures, subReplySearch } = filter.value
 
+    view.value.searchStatus = ESearchStatus.SEARCHING
     const oid = await getOid()
     let length = view.value.reply_cur
     let offset = view.value.offset
-    view.value.searchStatus = ESearchStatus.SEARCHING
-    const handler = subReplySearch ? handleSubReplyResult : handleResult
+    const handler = subReplySearch && regexp ? handleSubReplyResult : handleResult
     for (let index = view.value.index; ; index++) {
       if (view.value.searchStatus !== ESearchStatus.SEARCHING) break
       console.time(`第${index + 1}个发包`)
