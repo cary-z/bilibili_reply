@@ -42,7 +42,7 @@
         </el-col>
       </el-row>
       <el-row :gutter="10">
-        <el-col :span="12">
+        <el-col :span="8">
           <el-form-item label="数量">
             <el-input
               placeholder="请输入数量"
@@ -50,6 +50,11 @@
               clearable
               @input="limitInput"
               @keyup.enter="search"></el-input>
+          </el-form-item>
+        </el-col>
+        <el-col :span="8">
+          <el-form-item label="楼中楼">
+            <el-switch v-model="filter.subReplySearch" size="large" />
           </el-form-item>
         </el-col>
       </el-row>

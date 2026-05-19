@@ -8,6 +8,7 @@ export interface IFilter {
   pictures: boolean // 是否搜索笔记
   searchMode: boolean // 模式（关键词或者正则）
   mode: ESortMode // 模式（热度或者时间）
+  subReplySearch: boolean // 是否搜索楼中楼
 }
 export enum ESearchStatus {
   IDLE = 0,
@@ -63,6 +64,7 @@ export interface IMatchInfo extends IOriginalInfo {
   rpid: number
   time: number
   nickname_color: string
+  children?: IMatchInfo[]
 }
 
 export enum EVideoType {

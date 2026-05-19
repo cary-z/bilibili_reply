@@ -43,6 +43,51 @@
                 <i></i>
               </span>
             </div>
+            <div v-if="item.children?.length" class="sub-reply-panel">
+              <div class="sub-reply-list">
+                <div v-for="(child, ci) in item.children" :key="'child_' + ci" class="sub-reply-item">
+                  <img :src="child.avatar.replace('http:', 'https:')" class="sub-reply-avatar" />
+                  <div class="sub-reply-body">
+                    <div class="sub-reply-header">
+                      <a
+                        :style="`color:${child.nickname_color || '#6d757a'};vertical-align: middle;`"
+                        :href="'https://space.bilibili.com/' + child.uid"
+                        target="_blank"
+                        class="uname">
+                        {{ child.uname }}
+                      </a>
+                      <Svg :level="child.level" />
+                      <span v-if="child.upper_uid === child.uid" class="stick_up" style="width: 16px">
+                        <div class="tinyfont">UP</div>
+                      </span>
+                      <div class="replier-location">{{ child.reply_control?.location || '' }}</div>
+                    </div>
+                    <p
+                      v-if="checkReplace(child)"
+                      style="white-space: normal; word-break: break-all; overflow: hidden"
+                      class="message"
+                      v-html="replaceReply(child)"></p>
+                    <p v-else style="white-space: normal; word-break: break-all; overflow: hidden" class="message">
+                      {{ child.message }}
+                    </p>
+                    <div class="reply_bottom">
+                      <span class="time">{{ formatTime(child.time) }}</span>
+                      <span
+                        :class="`like ${child.action === EActionStatus.LIKE ? 'liked' : ''}`"
+                        @click="ReplyAction(child)">
+                        <i></i>
+                        <span>{{ child.like || '' }}</span>
+                      </span>
+                      <span
+                        :class="`hate ${child.action === EActionStatus.HATE ? 'hated' : ''}`"
+                        @click="ReplyHate(child)">
+                        <i></i>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
             <div v-if="shouldShowSubReplyToggle(item)" class="sub-reply-entry">
               <el-link type="primary" :underline="false" class="sub-reply-toggle" @click="handleToggleReplies(item)">
                 <span>{{ getSubReplyEntryText(item) }}</span>

@@ -11,7 +11,7 @@ import {
 } from '../api/reply'
 import { stringToRegexp } from '../libs/regexp'
 import { SleepMS, debounce } from '../libs/utils'
-import { handleResult } from './useinfo'
+import { handleResult, handleSubReplyResult } from './useinfo'
 import {
   IFilter,
   IView,
@@ -43,7 +43,8 @@ const reply_filter: IFilter = {
   num: '',
   pictures: false,
   searchMode: false,
-  mode: ESortMode.HEAT
+  mode: ESortMode.HEAT,
+  subReplySearch: false
 }
 export const filter = ref(reply_filter)
 const clearFilter = () => {
@@ -56,7 +57,8 @@ const clearFilter = () => {
     num: '', // 限制数量
     pictures: false,
     searchMode: false, // 模式（关键词或者正则）
-    mode: ESortMode.HEAT // 模式（热度或者时间）
+    mode: ESortMode.HEAT, // 模式（热度或者时间）
+    subReplySearch: false
   }
 }
 !filter.value && clearFilter()
@@ -87,7 +89,7 @@ const ensureSubReplyState = (key: string): ISubReplyState => {
   return subReplyMap.value[key]
 }
 
-const normalizeReply = (reply: IReplies, upperUid: number): IMatchInfo => {
+export const normalizeReply = (reply: IReplies, upperUid: number): IMatchInfo => {
   return {
     uid: reply.mid,
     uname: reply.member.uname,
@@ -325,16 +327,17 @@ export const getReply = async () => {
     const regexp = getRegexp()
     if (view.value.searchStatus !== ESearchStatus.SEARCHING) clearInfo()
     searchedRegexp.value = regexp
-    const { dyid, uid, num, mode, pictures } = filter.value
+    const { dyid, uid, num, mode, pictures, subReplySearch } = filter.value
 
     const oid = await getOid()
     let length = view.value.reply_cur
     let offset = view.value.offset
     view.value.searchStatus = ESearchStatus.SEARCHING
+    const handler = subReplySearch ? handleSubReplyResult : handleResult
     for (let index = view.value.index; ; index++) {
       if (view.value.searchStatus !== ESearchStatus.SEARCHING) break
       console.time(`第${index + 1}个发包`)
-      const result = await handleResult({
+      const result = await handler({
         index,
         type: dyid ? EVideoType.DYNAMIC : EVideoType.VIDEO,
         oid,
