@@ -333,11 +333,11 @@ export const getReply = async (reset = true) => {
     const oid = await getOid()
     let length = view.value.reply_cur
     let offset = view.value.offset
-    const handler = subReplySearch && regexp ? handleSubReplyResult : handleResult
+    const useSubReply = !!(subReplySearch && regexp)
     for (let index = view.value.index; ; index++) {
       if (view.value.searchStatus !== ESearchStatus.SEARCHING) break
       console.time(`第${index + 1}个发包`)
-      const result = await handler({
+      const para = {
         index,
         type: dyid ? EVideoType.DYNAMIC : EVideoType.VIDEO,
         oid,
@@ -346,9 +346,19 @@ export const getReply = async (reset = true) => {
         pictures,
         regexp,
         offset
-      })
+      }
+      const result = useSubReply
+        ? await handleSubReplyResult(para, (delta, allCount) => {
+            view.value.reply_cur += delta
+            if (!view.value.reply_total) view.value.reply_total = allCount
+            if (view.value.searchStatus !== ESearchStatus.SEARCHING) return false
+          })
+        : await handleResult(para)
       console.timeEnd(`第${index + 1}个发包`)
-      length += (result as IHandleResult).extraInfo.rp_num
+      if (view.value.searchStatus !== ESearchStatus.SEARCHING) break
+      if (!useSubReply) {
+        length += (result as IHandleResult).extraInfo.rp_num
+      }
       if (result.info && result.info.length > 0) {
         console.log((result as IHandleResult).info)
         for (const item of (result as IHandleResult).info) {
@@ -363,7 +373,9 @@ export const getReply = async (reset = true) => {
         offset = (result as IHandleResult).extraInfo.nextOffset || ''
         view.value.offset = offset
         view.value.index = index + 1
-        view.value.reply_cur = length
+        if (!useSubReply) {
+          view.value.reply_cur = length
+        }
         view.value.reply_total = (result as IHandleResult).extraInfo.all_count
       } else {
         view.value.reply_cur = view.value.reply_total

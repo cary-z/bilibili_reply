@@ -22,8 +22,16 @@ export async function handleResult({ index, type, oid, mode, uid, pictures, rege
     return { flag: false }
   }
   let rp_num = 0
-  const all_replies =
-    index || mode === ESortMode.TIME ? result.replies : (result.top_replies ?? []).concat(result.replies)
+  const replies = result.replies
+  let all_replies: IReplies[]
+  if (index || mode === ESortMode.TIME) {
+    all_replies = replies
+  } else {
+    const topReplies = result.top_replies ?? []
+    const replyIds = new Set(replies.map((r) => r.rpid))
+    const uniqueTop = topReplies.filter((r) => !replyIds.has(r.rpid))
+    all_replies = uniqueTop.concat(replies)
+  }
   all_replies.forEach((item) => {
     const content: IMatchInfo = {
       uid: item.mid,
@@ -107,23 +115,34 @@ function replyToMatchInfo(reply: IReplies, upperUid: number): IMatchInfo {
   }
 }
 
-export async function handleSubReplyResult(para: ISendPara) {
+export async function handleSubReplyResult(
+  para: ISendPara,
+  onProgress?: (delta: number, allCount: number) => boolean | void
+) {
   const result: IResult = await getReplyInfo({ type: para.type, oid: para.oid, mode: para.mode, offset: para.offset })
   const info: IMatchInfo[] = []
   if (!result.replies) {
-    return { flag: false }
+    return { flag: false, extraInfo: { rp_num: 0, all_count: 0, nextOffset: '' }, info }
   }
+
+  const allCount = result.cursor.all_count
   let rp_num = 0
-  const allReplies =
-    para.index || para.mode === ESortMode.TIME ? result.replies : (result.top_replies ?? []).concat(result.replies)
+  const replies = result.replies
+  let allReplies: IReplies[]
+  if (para.index || para.mode === ESortMode.TIME) {
+    allReplies = replies
+  } else {
+    const topReplies = result.top_replies ?? []
+    const replyIds = new Set(replies.map((r) => r.rpid))
+    const uniqueTop = topReplies.filter((r) => !replyIds.has(r.rpid))
+    allReplies = uniqueTop.concat(replies)
+  }
 
   for (let i = 0; i < allReplies.length; i += 3) {
     const batch = allReplies.slice(i, i + 3)
 
     const batchResults = await Promise.all(
       batch.map(async (reply) => {
-        rp_num += (reply.rcount ?? 0) + 1
-
         const parentMatch = checkReplyMatch(reply, para)
 
         const matchedChildren: IMatchInfo[] = []
@@ -143,6 +162,12 @@ export async function handleSubReplyResult(para: ISendPara) {
           }
         } catch {
           // 子回复获取失败，跳过
+        }
+
+        const proper = (reply.rcount ?? 0) + 1
+        rp_num += proper
+        if (onProgress) {
+          if (onProgress(proper, allCount) === false) return null
         }
 
         if (parentMatch || matchedChildren.length > 0) {
@@ -166,7 +191,7 @@ export async function handleSubReplyResult(para: ISendPara) {
 
   return {
     flag: !result.cursor.is_end,
-    extraInfo: { rp_num, all_count: result.cursor.all_count, nextOffset: result.cursor?.pagination_reply?.next_offset },
+    extraInfo: { rp_num, all_count: allCount, nextOffset: result.cursor?.pagination_reply?.next_offset },
     info
   }
 }
