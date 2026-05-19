@@ -69,6 +69,7 @@ export const view = ref<IView>({
   reply_cur: 0
 })
 export const matchInfo = ref<IMatchInfo[]>([])
+export const searchedRegexp = ref<RegExp | null>(null)
 const SUB_REPLY_PAGE_SIZE = 10
 export const subReplyMap = ref<Record<string, ISubReplyState>>({})
 
@@ -259,6 +260,7 @@ export const clearInfo = () => {
   view.value.offset = ''
   view.value.index = 0
   subReplyMap.value = {}
+  searchedRegexp.value = null
   isChromeExtension() && setReplyStorage()
 }
 
@@ -322,6 +324,7 @@ export const getReply = async () => {
     checkPara()
     const regexp = getRegexp()
     if (view.value.searchStatus !== ESearchStatus.SEARCHING) clearInfo()
+    searchedRegexp.value = regexp
     const { dyid, uid, num, mode, pictures } = filter.value
 
     const oid = await getOid()

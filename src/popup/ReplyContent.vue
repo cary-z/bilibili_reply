@@ -130,7 +130,7 @@ import { nextTick } from 'vue'
 import Svg from './Svg.vue'
 import Viewer from 'viewerjs'
 import 'viewerjs/dist/viewer.css'
-import { view, matchInfo, ReplyAction, ReplyHate, subReplyMap, toggleSubReplies, changeSubReplyPage } from './search'
+import { view, matchInfo, searchedRegexp, ReplyAction, ReplyHate, subReplyMap, toggleSubReplies, changeSubReplyPage } from './search'
 import { formatTime } from '../libs/utils'
 import { IMatchInfo, EActionStatus } from './type'
 
@@ -172,8 +172,13 @@ const checkReplace = (matchInfo: IMatchInfo) => {
     matchInfo.emote ||
     regexp.test(matchInfo.message) ||
     matchInfo.jump_url ||
-    matchInfo.members
+    matchInfo.members ||
+    !!searchedRegexp.value
   )
+}
+
+function getHighlightRegex(): RegExp | null {
+  return searchedRegexp.value
 }
 const replaceReply = (matchInfo: IMatchInfo) => {
   const { message, emote, jump_url, members, pictures } = matchInfo
@@ -265,6 +270,18 @@ const replaceReply = (matchInfo: IMatchInfo) => {
       ${imgStr}
     </ul>
     `
+  }
+  // 高亮关键词
+  const hlRegex = getHighlightRegex()
+  if (hlRegex) {
+    const parts = str.split(/(<[^>]*>)/)
+    str = parts
+      .map((part) =>
+        part.startsWith('<') && part.endsWith('>')
+          ? part
+          : part.replace(hlRegex, '<mark class="keyword-highlight">$&</mark>')
+      )
+      .join('')
   }
   nextTick(() => {
     // 给图片绑定点击事件
@@ -468,6 +485,11 @@ const replaceReply = (matchInfo: IMatchInfo) => {
 }
 </style>
 <style lang="scss">
+.keyword-highlight {
+  background-color: #ffe082;
+  padding: 0 2px;
+  border-radius: 2px;
+}
 #bilibili-reply__note-picture.preview-image-container {
   display: flex;
   flex-wrap: wrap;
